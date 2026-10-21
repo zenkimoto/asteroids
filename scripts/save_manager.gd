@@ -15,6 +15,8 @@ const LEADERBOARD_PATH: String = "user://leaderboard.json"
 const INVALID_SUFFIX: String = ".invalid"
 const TEMP_SUFFIX: String = ".tmp"
 
+## Where the leaderboard is saved; automated tests point it at a scratch file.
+var leaderboard_path: String = LEADERBOARD_PATH
 var leaderboard := Leaderboard.new()
 
 
@@ -23,14 +25,14 @@ func _ready() -> void:
 
 
 func load_leaderboard() -> void:
-	var data := read_json(LEADERBOARD_PATH)
+	var data := read_json(leaderboard_path)
 	if data.is_empty():
 		leaderboard.clear()
 	elif not leaderboard.from_data(data):
-		_set_aside(LEADERBOARD_PATH, "it has no entries list")
+		_set_aside(leaderboard_path, "it has no entries list")
 		leaderboard.clear()
 	elif leaderboard.rejected_count > 0:
-		save_file_recovered.emit(LEADERBOARD_PATH, "%d invalid entries were skipped" % leaderboard.rejected_count)
+		save_file_recovered.emit(leaderboard_path, "%d invalid entries were skipped" % leaderboard.rejected_count)
 		push_warning("SaveManager: skipped %d invalid leaderboard entries." % leaderboard.rejected_count)
 	leaderboard_changed.emit()
 
@@ -43,7 +45,7 @@ func submit_score(player_name: String, score: int, wave: int) -> int:
 		return 0
 	var rank := leaderboard.add(LeaderboardEntry.create(clean_name, score, wave))
 	if rank > 0:
-		write_json(LEADERBOARD_PATH, leaderboard.to_data())
+		write_json(leaderboard_path, leaderboard.to_data())
 		leaderboard_changed.emit()
 	return rank
 

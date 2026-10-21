@@ -56,6 +56,8 @@ const DEFAULTS: Dictionary = {
 ## Display names for ParticleIntensity, in enum order.
 const PARTICLE_INTENSITY_NAMES: PackedStringArray = ["Low", "Medium", "High"]
 
+## Where settings are saved; automated tests point it at a scratch file.
+var settings_path: String = SETTINGS_PATH
 var _values: Dictionary = DEFAULTS.duplicate()
 var _save_queued: bool = false
 var _fps_layer: CanvasLayer
@@ -111,7 +113,7 @@ func reset_to_defaults() -> void:
 ## Reloads from disk, keeping defaults for anything missing or invalid.
 func load_settings() -> void:
 	_values = DEFAULTS.duplicate()
-	var data := SaveManager.read_json(SETTINGS_PATH)
+	var data := SaveManager.read_json(settings_path)
 	var saved: Variant = data.get("settings", {})
 	var ignored := 0
 	if saved is Dictionary:
@@ -128,7 +130,7 @@ func load_settings() -> void:
 		ignored += 1
 	if ignored > 0:
 		push_warning("SettingsManager: ignored %d invalid saved settings." % ignored)
-		SaveManager.save_file_recovered.emit(SETTINGS_PATH, "%d invalid settings were reset" % ignored)
+		SaveManager.save_file_recovered.emit(settings_path, "%d invalid settings were reset" % ignored)
 	for key: StringName in _values:
 		_apply(key)
 		setting_changed.emit(key, _values[key])
@@ -136,7 +138,7 @@ func load_settings() -> void:
 
 func save_settings() -> bool:
 	_save_queued = false
-	return SaveManager.write_json(SETTINGS_PATH, {"version": DATA_VERSION, "settings": _values.duplicate()})
+	return SaveManager.write_json(settings_path, {"version": DATA_VERSION, "settings": _values.duplicate()})
 
 
 func is_screen_shake_enabled() -> bool:

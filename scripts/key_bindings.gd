@@ -21,6 +21,8 @@ const REBINDABLE: Array[Array] = [
 const RESERVED_KEYS: Array[Key] = [KEY_ESCAPE]
 
 ## Action -> its keycodes from project.godot.
+## Where bindings are saved; automated tests point it at a scratch file.
+var controls_path: String = CONTROLS_PATH
 var _defaults: Dictionary = {}
 
 
@@ -97,7 +99,7 @@ func reset_to_defaults() -> void:
 
 ## Applies saved bindings; anything missing or invalid keeps its default.
 func load_bindings() -> void:
-	var data := SaveManager.read_json(CONTROLS_PATH)
+	var data := SaveManager.read_json(controls_path)
 	var saved: Variant = data.get("bindings", {})
 	if not saved is Dictionary:
 		return
@@ -112,7 +114,7 @@ func save_bindings() -> bool:
 	var bindings := {}
 	for action in get_actions():
 		bindings[String(action)] = get_keys(action)
-	return SaveManager.write_json(CONTROLS_PATH, {"version": DATA_VERSION, "bindings": bindings})
+	return SaveManager.write_json(controls_path, {"version": DATA_VERSION, "bindings": bindings})
 
 
 func _parse_keys(value: Variant) -> Array[Key]:

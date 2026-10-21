@@ -1,0 +1,11 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://tests/runtime/runtime_test_runner.gd" id="1_runner"]
+[ext_resource type="Script" path="res://tests/runtime/gameplay_tests.gd" id="2_gameplay"]
+[ext_resource type="Script" path="res://tests/runtime/session_tests.gd" id="3_session"]
+[ext_resource type="Script" path="res://tests/runtime/persistence_tests.gd" id="4_persistence"]
+[ext_resource type="Script" path="res://tests/runtime/balance_tests.gd" id="5_balance"]
+
+[node name="RuntimeTests" type="Node"]
+script = ExtResource("1_runner")
+suite_scripts = Array[Script]([ExtResource("2_gameplay"), ExtResource("3_session"), ExtResource("4_persistence"), ExtResource("5_balance")])

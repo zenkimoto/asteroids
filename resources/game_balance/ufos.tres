@@ -69,4 +69,4 @@ max_fire_rate_multiplier = 1.8
 accuracy_increase_per_wave = 0.06
 min_aim_error_multiplier = 0.4
 projectile_speed_increase_per_wave = 0.04
-max_projectile_speed_multiplier = 1.4
+max_projectile_speed_multiplier = 1.3

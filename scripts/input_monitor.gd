@@ -11,6 +11,8 @@ signal action_state_changed(action: StringName, pressed: bool)
 @export_range(8, 64) var font_size: int = 22
 @export var log_to_console: bool = true
 @export var start_visible: bool = false
+## Removes the overlay from release exports so players never see it.
+@export var debug_builds_only: bool = true
 
 var _actions: Array[StringName] = []
 var _labels: Dictionary[StringName, Label] = {}
@@ -20,6 +22,9 @@ var _pressed: Dictionary[StringName, bool] = {}
 
 
 func _ready() -> void:
+	if debug_builds_only and not OS.is_debug_build():
+		queue_free()
+		return
 	# Keep reporting input even when the tree is paused (needed once pause exists).
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = start_visible
