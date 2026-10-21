@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/input_monitor.gd" id="1_monitor"]
+
+[node name="InputMonitor" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_monitor")
+
+[node name="Panel" type="PanelContainer" parent="."]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 344.0
+offset_bottom = 64.0
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="Rows" type="VBoxContainer" parent="Panel/Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "INPUT CHECK"
