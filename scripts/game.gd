@@ -9,6 +9,8 @@ extends Node2D
 @onready var projectiles: EntityContainer = $Projectiles
 @onready var ufo_fleet: UfoFleet = $UfoFleet
 @onready var enemy_projectiles: EntityContainer = $EnemyProjectiles
+@onready var power_ups: PowerUpSpawner = $PowerUps
+@onready var power_up_effects: PowerUpEffects = $PowerUpEffects
 @onready var timers: TimerScheduler = $Timers
 @onready var wave_manager: WaveManager = $WaveManager
 @onready var wave_announcer: WaveAnnouncer = $WaveAnnouncer
@@ -25,14 +27,25 @@ func _ready() -> void:
 	player.weapon.projectile_parent = projectiles
 	# Every connection is made once here; restarts reuse them.
 	player.died.connect(_on_player_died)
+	player.died.connect(ScoreManager.reset_combo)
 	asteroid_field.asteroid_destroyed.connect(ScoreManager.record_asteroid_destroyed)
+	asteroid_field.asteroid_destroyed.connect(power_ups.drop_from_asteroid)
 	ufo_fleet.ufo_destroyed.connect(ScoreManager.record_ufo_destroyed)
+	ufo_fleet.ufo_destroyed.connect(power_ups.drop_from_ufo)
+	power_ups.collected.connect(power_up_effects.apply)
+	power_up_effects.power_up_applied.connect(hud.on_power_up_applied)
+	power_up_effects.effect_started.connect(hud.on_effect_started)
+	power_up_effects.effect_ended.connect(hud.on_effect_ended)
+	hud.effects = power_up_effects
 	wave_manager.countdown_started.connect(hud.set_wave)
 	wave_manager.countdown_ticked.connect(wave_announcer.show_countdown)
 	wave_manager.wave_started.connect(wave_announcer.show_wave_started)
 	wave_manager.wave_completed.connect(wave_announcer.show_wave_complete)
 	wave_manager.wave_completed.connect(ScoreManager.record_wave_completed)
 	ScoreManager.score_changed.connect(hud.set_score)
+	ScoreManager.combo_changed.connect(hud.set_combo)
+	ScoreManager.multiplier_increased.connect(hud.on_multiplier_increased)
+	ScoreManager.extra_life_awarded.connect(hud.on_extra_life_awarded)
 	GameManager.lives_changed.connect(hud.set_lives)
 	GameManager.session_started.connect(_on_session_started)
 	GameManager.state_changed.connect(_on_state_changed)
@@ -53,6 +66,8 @@ func _apply_balance(balance: GameBalance) -> void:
 	asteroid_field.settings = balance.asteroids
 	wave_manager.settings = balance.waves
 	ufo_fleet.settings = balance.ufos
+	power_ups.settings = balance.power_ups
+	power_up_effects.settings = balance.power_ups
 
 
 func _rules() -> GameRules:
@@ -66,6 +81,8 @@ func _on_session_started() -> void:
 	enemy_projectiles.clear()
 	ufo_fleet.clear()
 	asteroid_field.clear()
+	power_ups.clear()
+	power_up_effects.clear()
 	wave_announcer.hide_now()
 	player.respawn(Playfield.get_center(), _rules().invulnerability_duration)
 	wave_manager.start()

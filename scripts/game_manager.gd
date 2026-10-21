@@ -117,6 +117,15 @@ func end_wave_transition() -> void:
 		_change_state(State.PLAYING)
 
 
+## Adds a life up to the cap. Returns whether one was added.
+func add_life() -> bool:
+	if not is_gameplay_active() or _out_of_lives or lives >= balance.rules.max_lives:
+		return false
+	lives += 1
+	lives_changed.emit(lives)
+	return true
+
+
 ## Takes a life. Returns true if the ship should respawn; on the last life the
 ## game moves to GAME_OVER after the configured delay.
 func register_player_death() -> bool:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/playfield.gd" id="3_playfield"]
@@ -20,6 +20,10 @@
 [ext_resource type="Resource" path="res://resources/game_balance/ufos.tres" id="19_ufo_settings"]
 [ext_resource type="PackedScene" path="res://scenes/large_ufo.tscn" id="20_large_ufo"]
 [ext_resource type="PackedScene" path="res://scenes/small_ufo.tscn" id="21_small_ufo"]
+[ext_resource type="Script" path="res://scripts/power_up_spawner.gd" id="22_power_ups"]
+[ext_resource type="Resource" path="res://resources/game_balance/power_ups.tres" id="23_power_up_settings"]
+[ext_resource type="PackedScene" path="res://scenes/power_up_pickup.tscn" id="24_pickup"]
+[ext_resource type="Script" path="res://scripts/power_up_effects.gd" id="25_effects"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_game")
@@ -44,6 +48,11 @@ projectiles = NodePath("../EnemyProjectiles")
 [node name="Timers" type="Node" parent="UfoFleet"]
 script = ExtResource("13_timers")
 
+[node name="PowerUps" type="Node2D" parent="."]
+script = ExtResource("22_power_ups")
+settings = ExtResource("23_power_up_settings")
+pickup_scene = ExtResource("24_pickup")
+
 [node name="Projectiles" type="Node2D" parent="."]
 script = ExtResource("12_container")
 
@@ -55,6 +64,11 @@ position = Vector2(960, 540)
 
 [node name="Timers" type="Node" parent="."]
 script = ExtResource("13_timers")
+
+[node name="PowerUpEffects" type="Node" parent="." node_paths=PackedStringArray("player")]
+script = ExtResource("25_effects")
+settings = ExtResource("23_power_up_settings")
+player = NodePath("../Player")
 
 [node name="WaveManager" type="Node" parent="." node_paths=PackedStringArray("asteroid_field", "ufo_fleet")]
 script = ExtResource("15_waves")

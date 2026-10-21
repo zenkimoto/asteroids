@@ -9,3 +9,5 @@ extends Resource
 @export var asteroids: AsteroidSettings
 @export var waves: WaveSettings
 @export var ufos: UfoSettings
+@export var power_ups: PowerUpSettings
+@export var scoring: ScoringSettings

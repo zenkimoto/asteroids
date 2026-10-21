@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ScoringSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/scoring_settings.gd" id="1_scoring"]
+
+[resource]
+script = ExtResource("1_scoring")
+combo_window = 3.0
+kills_per_multiplier_step = 5
+max_multiplier = 5
+extra_life_every = 10000

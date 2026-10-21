@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_rules")
 starting_lives = 3
+max_lives = 5
 respawn_delay = 1.5
 invulnerability_duration = 2.0
 respawn_clear_radius = 220.0

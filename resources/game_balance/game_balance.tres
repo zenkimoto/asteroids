@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="GameBalance" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="GameBalance" load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/game_balance.gd" id="1_balance"]
 [ext_resource type="Resource" path="res://resources/game_balance/game_rules.tres" id="2_rules"]
@@ -7,6 +7,8 @@
 [ext_resource type="Resource" path="res://resources/game_balance/asteroids.tres" id="5_asteroids"]
 [ext_resource type="Resource" path="res://resources/game_balance/waves.tres" id="6_waves"]
 [ext_resource type="Resource" path="res://resources/game_balance/ufos.tres" id="7_ufos"]
+[ext_resource type="Resource" path="res://resources/game_balance/power_ups.tres" id="8_power_ups"]
+[ext_resource type="Resource" path="res://resources/game_balance/scoring.tres" id="9_scoring"]
 
 [resource]
 script = ExtResource("1_balance")
@@ -16,3 +18,5 @@ weapon = ExtResource("4_weapon")
 asteroids = ExtResource("5_asteroids")
 waves = ExtResource("6_waves")
 ufos = ExtResource("7_ufos")
+power_ups = ExtResource("8_power_ups")
+scoring = ExtResource("9_scoring")

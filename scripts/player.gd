@@ -2,8 +2,8 @@ class_name Player
 extends Area2D
 ## Player spaceship with classic Asteroids movement: rotation, thrust with inertia,
 ## exponential drag, a speed cap, a timed boost with cooldown and screen wrapping.
-## It fires through its Weapon child and dies on touching a hazard unless
-## invulnerable. The hull art points up, so "forward" is Vector2.UP rotated by
+## It fires through its Weapon child, collects power-up pickups it touches and
+## dies on touching a hazard unless invulnerable or shielded. The hull art points up, so "forward" is Vector2.UP rotated by
 ## the ship's rotation.
 
 signal boost_started
@@ -12,6 +12,7 @@ signal boost_ready
 signal wrapped(from_position: Vector2, to_position: Vector2)
 signal died
 signal respawned
+signal shield_changed(active: bool)
 
 @export var settings: PlayerMovementSettings
 ## When false the ship ignores input but keeps drifting (for later game states).
@@ -26,6 +27,8 @@ signal respawned
 @export_range(1.0, 3.0, 0.1) var boost_flame_scale: float = 1.7
 ## Random per-frame variation of the flame length (0 = steady).
 @export_range(0.0, 0.5, 0.01) var flame_flicker: float = 0.15
+## Radius of the shield ring drawn around the ship.
+@export_range(10.0, 100.0, 1.0) var shield_radius: float = 34.0
 
 var velocity: Vector2 = Vector2.ZERO
 ## Net thrust input this tick: 1 = full forward, negative = reverse.
@@ -37,12 +40,20 @@ var boost_time_left: float = 0.0
 var boost_cooldown_left: float = 0.0
 var is_alive: bool = true
 var invulnerable_time_left: float = 0.0
+## Set by power-ups (Speed Boost); 1 means normal.
+var acceleration_multiplier: float = 1.0
+var max_speed_multiplier: float = 1.0
+## An active shield absorbs the next hazard contact, then disappears.
+var has_shield: bool = false
+## Invulnerability granted when the shield absorbs a hit.
+var shield_grace_time: float = 1.0
 
 var _flicker_rng := RandomNumberGenerator.new()
 
 @onready var _main_flame: Node2D = $MainFlame
 @onready var _reverse_flames: Node2D = $ReverseFlames
 @onready var _collision: CollisionPolygon2D = $CollisionShape
+@onready var _shield_ring: Line2D = $Shield
 @onready var weapon: Weapon = $Weapon
 
 
@@ -50,6 +61,11 @@ func _ready() -> void:
 	if settings == null:
 		push_warning("Player has no PlayerMovementSettings assigned; using defaults.")
 		settings = PlayerMovementSettings.new()
+	var ring := PackedVector2Array()
+	for i in 32:
+		ring.append(Vector2.from_angle(TAU * i / 32.0) * shield_radius)
+	_shield_ring.points = ring
+	_shield_ring.visible = has_shield
 	_update_thrust_visuals()
 
 
@@ -67,6 +83,7 @@ func _physics_process(delta: float) -> void:
 	_update_thrust_visuals()
 	weapon.source_velocity = velocity
 	_update_invulnerability(delta)
+	_collect_pickups()
 	_check_hazard_contact()
 
 
@@ -78,11 +95,12 @@ func get_speed() -> float:
 	return velocity.length()
 
 
-## Current top speed, including the boost multiplier while boosting.
+## Current top speed, including the boost and power-up multipliers.
 func get_max_speed() -> float:
+	var top_speed := settings.max_speed * max_speed_multiplier
 	if is_boosting:
-		return settings.max_speed * settings.boost_max_speed_multiplier
-	return settings.max_speed
+		return top_speed * settings.boost_max_speed_multiplier
+	return top_speed
 
 
 func is_invulnerable() -> bool:
@@ -94,6 +112,7 @@ func die() -> void:
 	if not is_alive:
 		return
 	is_alive = false
+	set_shield(false)
 	reset_motion()
 	weapon.reset()
 	visible = false
@@ -113,6 +132,14 @@ func respawn(at: Vector2, invulnerability: float) -> void:
 	modulate.a = 1.0
 	_collision.set_deferred("disabled", false)
 	respawned.emit()
+
+
+func set_shield(active: bool) -> void:
+	if active == has_shield:
+		return
+	has_shield = active
+	_shield_ring.visible = active
+	shield_changed.emit(active)
 
 
 func can_boost() -> bool:
@@ -174,7 +201,7 @@ func _update_boost(delta: float) -> void:
 func _apply_thrust(delta: float) -> void:
 	if is_zero_approx(thrust_input):
 		return
-	var acceleration := settings.acceleration
+	var acceleration := settings.acceleration * acceleration_multiplier
 	if is_boosting:
 		acceleration *= settings.boost_acceleration_multiplier
 	velocity += get_forward() * thrust_input * acceleration * delta
@@ -208,8 +235,16 @@ func _update_invulnerability(delta: float) -> void:
 	modulate.a = 1.0 if invulnerable_time_left == 0.0 or blink_on else blink_alpha
 
 
+func _collect_pickups() -> void:
+	for area in get_overlapping_areas():
+		var pickup := area as PowerUpPickup
+		if pickup != null:
+			pickup.collect()
+
+
 ## Polled every tick rather than using area_entered, so a hazard still overlapping
-## the ship when invulnerability ends is caught too.
+## the ship when invulnerability ends is caught too. Only one hazard is handled
+## per tick, so simultaneous contacts cost at most one shield or one life.
 func _check_hazard_contact() -> void:
 	if is_invulnerable():
 		return
@@ -218,7 +253,11 @@ func _check_hazard_contact() -> void:
 			# Shots disappear on impact; asteroids and UFOs carry on.
 			if area.has_method(&"on_player_hit"):
 				area.on_player_hit()
-			die()
+			if has_shield:
+				set_shield(false)
+				invulnerable_time_left = shield_grace_time
+			else:
+				die()
 			return
 
 

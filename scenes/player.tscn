@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/projectile.tscn" id="5_projectile"]
 
 [node name="Player" type="Area2D"]
-collision_mask = 26
+collision_mask = 58
 monitorable = false
 script = ExtResource("1_player")
 settings = ExtResource("2_settings")
@@ -50,6 +50,13 @@ closed = true
 width = 2.5
 default_color = Color(0.3, 0.95, 1, 1)
 joint_mode = 2
+antialiased = true
+
+[node name="Shield" type="Line2D" parent="."]
+visible = false
+closed = true
+width = 3.0
+default_color = Color(0.45, 1, 0.75, 0.85)
 antialiased = true
 
 [node name="Weapon" type="Node2D" parent="."]
