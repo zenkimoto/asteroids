@@ -2,6 +2,7 @@ class_name InputMonitor
 extends CanvasLayer
 ## Development overlay that lists every configured input action and highlights the
 ## ones currently held. Used to confirm the Input Map works; it also logs changes.
+## Toggle with F3.
 
 signal action_state_changed(action: StringName, pressed: bool)
 
@@ -9,6 +10,7 @@ signal action_state_changed(action: StringName, pressed: bool)
 @export var released_color: Color = Color(0.55, 0.6, 0.7)
 @export_range(8, 64) var font_size: int = 22
 @export var log_to_console: bool = true
+@export var start_visible: bool = false
 
 var _actions: Array[StringName] = []
 var _labels: Dictionary[StringName, Label] = {}
@@ -20,6 +22,7 @@ var _pressed: Dictionary[StringName, bool] = {}
 func _ready() -> void:
 	# Keep reporting input even when the tree is paused (needed once pause exists).
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	visible = start_visible
 	for action in InputActions.missing_actions():
 		push_error("Input action '%s' is not defined in the Input Map." % action)
 	for action in InputActions.ALL:
@@ -38,6 +41,12 @@ func _ready() -> void:
 		print("[InputMonitor] %d/%d input actions configured." % [_actions.size(), InputActions.ALL.size()])
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(InputActions.TOGGLE_DEBUG):
+		# Not marked handled: other debug overlays toggle on the same key.
+		visible = not visible
+
+
 func _process(_delta: float) -> void:
 	for action in _actions:
 		var is_pressed := Input.is_action_pressed(action)
@@ -52,7 +61,8 @@ func is_action_held(action: StringName) -> bool:
 
 func _on_action_state_changed(action: StringName, is_pressed: bool) -> void:
 	_apply_style(action)
-	if log_to_console:
+	# Only log while the overlay is shown, so normal play doesn't flood the console.
+	if log_to_console and visible:
 		print("[Input] %s %s" % [action, "pressed" if is_pressed else "released"])
 
 

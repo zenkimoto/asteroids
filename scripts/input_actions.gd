@@ -10,6 +10,7 @@ const ROTATE_RIGHT: StringName = &"rotate_right"
 const FIRE: StringName = &"fire"
 const BOOST: StringName = &"boost"
 const PAUSE: StringName = &"pause"
+const TOGGLE_DEBUG: StringName = &"toggle_debug"
 
 const ALL: Array[StringName] = [
 	THRUST_FORWARD,
@@ -19,6 +20,7 @@ const ALL: Array[StringName] = [
 	FIRE,
 	BOOST,
 	PAUSE,
+	TOGGLE_DEBUG,
 ]
 
 

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="PlayerMovementSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/player_movement_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+acceleration = 650.0
+reverse_thrust_ratio = 0.5
+rotation_speed_degrees = 270.0
+max_speed = 600.0
+drag = 0.4
+overspeed_deceleration = 700.0
+boost_impulse = 250.0
+boost_acceleration_multiplier = 1.8
+boost_max_speed_multiplier = 1.6
+boost_duration = 1.5
+boost_cooldown = 3.0
+wrap_margin = 26.0

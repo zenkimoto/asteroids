@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="AsteroidSettings" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/asteroid_settings.gd" id="1_settings"]
+[ext_resource type="Script" path="res://scripts/asteroid_size_settings.gd" id="2_size"]
+
+[sub_resource type="Resource" id="Resource_large"]
+script = ExtResource("2_size")
+radius = 64.0
+min_speed = 50.0
+max_speed = 100.0
+score = 20
+hit_points = 1
+
+[sub_resource type="Resource" id="Resource_medium"]
+script = ExtResource("2_size")
+radius = 36.0
+min_speed = 80.0
+max_speed = 150.0
+score = 50
+hit_points = 1
+
+[sub_resource type="Resource" id="Resource_small"]
+script = ExtResource("2_size")
+radius = 18.0
+min_speed = 120.0
+max_speed = 210.0
+score = 100
+hit_points = 1
+
+[resource]
+script = ExtResource("1_settings")
+large = SubResource("Resource_large")
+medium = SubResource("Resource_medium")
+small = SubResource("Resource_small")
+fragment_count = 2
+fragment_inherit_ratio = 0.5
+fragment_player_clearance = 120.0
+spawn_safe_radius = 350.0
+min_vertices = 10
+max_vertices = 14
+irregularity = 0.35
+min_spin = 0.2
+max_spin = 1.2

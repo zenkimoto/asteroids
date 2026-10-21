@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WeaponSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/weapon_settings.gd" id="1_weapon"]
+
+[resource]
+script = ExtResource("1_weapon")
+fire_cooldown = 0.22
+projectile_speed = 950.0
+projectile_lifetime = 0.85
+inherit_velocity_ratio = 0.5
+damage = 1

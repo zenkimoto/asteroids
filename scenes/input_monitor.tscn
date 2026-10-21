@@ -7,10 +7,14 @@ layer = 10
 script = ExtResource("1_monitor")
 
 [node name="Panel" type="PanelContainer" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
 offset_left = 24.0
-offset_top = 24.0
+offset_top = -64.0
 offset_right = 344.0
-offset_bottom = 64.0
+offset_bottom = -24.0
+grow_vertical = 0
 
 [node name="Margin" type="MarginContainer" parent="Panel"]
 layout_mode = 2

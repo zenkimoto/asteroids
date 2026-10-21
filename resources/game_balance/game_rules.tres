@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="GameRules" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game_rules.gd" id="1_rules"]
+
+[resource]
+script = ExtResource("1_rules")
+starting_lives = 3
+respawn_delay = 1.5
+invulnerability_duration = 2.0
+respawn_clear_radius = 220.0
+asteroids_per_field = 4
+field_refill_delay = 2.0
+game_over_delay = 1.0

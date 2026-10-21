@@ -43,11 +43,11 @@ static func get_playfield_size() -> Vector2:
 	)
 
 
-func get_playfield_rect() -> Rect2:
+static func get_playfield_rect() -> Rect2:
 	return Rect2(Vector2.ZERO, get_playfield_size())
 
 
-func get_center() -> Vector2:
+static func get_center() -> Vector2:
 	return get_playfield_size() / 2.0
 
 
