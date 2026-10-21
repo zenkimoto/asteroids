@@ -1,7 +1,7 @@
 extends Node
 ## Autoload "SettingsManager": the player's preferences. Loads them from
 ## user://settings.json at startup, applies them (audio bus volumes, window
-## mode, FPS counter) and saves every change.
+## mode, FPS counter, minimum window size) and saves every change.
 ##
 ## Each setting has a default and a type; saved values of the wrong type are
 ## ignored and numbers are clamped, so a damaged file can only fall back to
@@ -28,7 +28,13 @@ const FULLSCREEN: StringName = &"fullscreen"
 const SCREEN_SHAKE: StringName = &"screen_shake"
 const PARTICLE_INTENSITY: StringName = &"particle_intensity"
 const SHOW_FPS: StringName = &"show_fps"
+const REDUCE_FLASHING: StringName = &"reduce_flashing"
+const LARGE_HUD: StringName = &"large_hud"
 const PLAYER_NAME: StringName = &"player_name"
+
+## Smallest window the player can resize to; the 1920x1080 layout scales down
+## uniformly (letterboxed), and below this text gets too small to read.
+const MIN_WINDOW_SIZE: Vector2i = Vector2i(960, 540)
 
 ## Volumes are linear, 0 to 1. The defaults also define each setting's type.
 const DEFAULTS: Dictionary = {
@@ -42,6 +48,8 @@ const DEFAULTS: Dictionary = {
 	SCREEN_SHAKE: true,
 	PARTICLE_INTENSITY: ParticleIntensity.HIGH,
 	SHOW_FPS: false,
+	REDUCE_FLASHING: false,
+	LARGE_HUD: false,
 	PLAYER_NAME: "",
 }
 
@@ -58,6 +66,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_ensure_audio_buses()
 	_build_fps_counter()
+	_apply_minimum_window_size()
 	load_settings()
 
 
@@ -138,6 +147,16 @@ func get_particle_intensity() -> ParticleIntensity:
 	return get_value(PARTICLE_INTENSITY)
 
 
+## Accessibility: no full-screen flashes and no blinking ship.
+func is_reduce_flashing_enabled() -> bool:
+	return get_value(REDUCE_FLASHING)
+
+
+## Accessibility: larger HUD text.
+func is_large_hud_enabled() -> bool:
+	return get_value(LARGE_HUD)
+
+
 ## Returns the value converted to the setting's type, or null if it can't be.
 func _validate(key: StringName, value: Variant) -> Variant:
 	var default: Variant = DEFAULTS[key]
@@ -190,6 +209,12 @@ func _apply_window_mode(fullscreen: bool) -> void:
 	var wanted := DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED
 	if DisplayServer.window_get_mode() != wanted:
 		DisplayServer.window_set_mode(wanted)
+
+
+func _apply_minimum_window_size() -> void:
+	if DisplayServer.get_name() == "headless" or Engine.is_embedded_in_editor():
+		return
+	get_window().min_size = MIN_WINDOW_SIZE
 
 
 ## Music and SFX buses normally come from default_bus_layout.tres; this keeps

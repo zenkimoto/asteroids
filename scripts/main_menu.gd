@@ -13,6 +13,7 @@ extends Node2D
 @onready var _leaderboard_panel: LeaderboardPanel = %LeaderboardPanel
 @onready var _how_to_play_panel: HowToPlayPanel = %HowToPlayPanel
 @onready var _settings_panel: SettingsPanel = %SettingsPanel
+@onready var _title: Label = %Title
 
 var _return_focus: Control
 
@@ -27,7 +28,9 @@ func _ready() -> void:
 		panel.closed.connect(_on_panel_closed)
 	SaveManager.leaderboard_changed.connect(_update_best)
 	_update_best()
+	MenuPanel.wrap_focus([_start_button, _leaderboard_button, _how_to_play_button, _settings_button, _quit_button])
 	_start_button.grab_focus()
+	_animate_title()
 
 
 func _open_panel(panel: MenuPanel, from: Control) -> void:
@@ -40,6 +43,13 @@ func _on_panel_closed() -> void:
 	_menu.visible = true
 	if _return_focus != null:
 		_return_focus.grab_focus()
+
+
+## A slow glow pulse on the title.
+func _animate_title() -> void:
+	var tween := create_tween().set_loops()
+	tween.tween_property(_title, "self_modulate", Color(1.25, 1.25, 1.25, 1.0), 1.6).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(_title, "self_modulate", Color(0.85, 0.85, 0.9, 1.0), 1.6).set_trans(Tween.TRANS_SINE)
 
 
 func _update_best() -> void:

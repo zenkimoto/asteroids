@@ -8,6 +8,8 @@ extends MenuPanel
 @export var text_color: Color = Color(0.85, 0.92, 1, 1)
 @export var highlight_color: Color = Color(1, 0.55, 0.85, 1)
 @export var empty_color: Color = Color(0.45, 0.5, 0.6, 1)
+## Rank colours for 1st, 2nd and 3rd place.
+@export var podium_colors: Array[Color] = [Color(1, 0.82, 0.3, 1), Color(0.8, 0.86, 0.95, 1), Color(0.95, 0.6, 0.35, 1)]
 
 var _highlight: LeaderboardEntry
 
@@ -53,13 +55,19 @@ func _refresh() -> void:
 		var rank := i + 1
 		if i < entries.size():
 			var entry: LeaderboardEntry = entries[i]
-			var color := highlight_color if entry == _highlight else text_color
-			_add_row([str(rank), entry.player_name, str(entry.score), str(entry.wave), entry.date], color)
+			var highlighted := entry == _highlight
+			var color := highlight_color if highlighted else text_color
+			# The arrow marks the new entry without relying on colour alone.
+			var rank_text := ("> %d" if highlighted else "%d") % rank
+			var labels := _add_row([rank_text, entry.player_name, str(entry.score), str(entry.wave), entry.date], color)
+			if i < podium_colors.size() and not highlighted:
+				labels[0].add_theme_color_override(&"font_color", podium_colors[i])
 		else:
 			_add_row([str(rank), "---", "-", "-", "-"], empty_color)
 
 
-func _add_row(cells: Array, color: Color) -> void:
+func _add_row(cells: Array, color: Color) -> Array[Label]:
+	var labels: Array[Label] = []
 	for i in cells.size():
 		var label := Label.new()
 		label.text = cells[i]
@@ -69,3 +77,5 @@ func _add_row(cells: Array, color: Color) -> void:
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if i == 1 else HORIZONTAL_ALIGNMENT_RIGHT
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL if i == 1 else Control.SIZE_FILL
 		_rows.add_child(label)
+		labels.append(label)
+	return labels

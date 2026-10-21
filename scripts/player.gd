@@ -25,6 +25,8 @@ signal shield_absorbed
 @export_range(0.02, 1.0, 0.01) var blink_interval: float = 0.1
 ## Ship opacity during the "off" half of a blink.
 @export_range(0.0, 1.0, 0.05) var blink_alpha: float = 0.2
+## Ship opacity while invulnerable when the Reduce Flashing setting is on.
+@export_range(0.0, 1.0, 0.05) var steady_invulnerable_alpha: float = 0.45
 ## Flame length multiplier while boosting.
 @export_range(1.0, 3.0, 0.1) var boost_flame_scale: float = 1.7
 ## Random per-frame variation of the flame length (0 = steady).
@@ -66,6 +68,7 @@ var _shield_time: float = 0.0
 @onready var _boost_exhaust: EngineExhaust = $BoostExhaust
 @onready var _reverse_exhausts: Array[EngineExhaust] = [$ReverseExhaustLeft, $ReverseExhaustRight]
 @onready var _boost_trail: BoostTrail = $BoostTrail
+@onready var _engine_audio: EngineAudio = $EngineAudio
 @onready var weapon: Weapon = $Weapon
 
 
@@ -268,8 +271,14 @@ func _update_invulnerability(delta: float) -> void:
 	if invulnerable_time_left <= 0.0:
 		return
 	invulnerable_time_left = maxf(invulnerable_time_left - delta, 0.0)
-	var blink_on := fmod(invulnerable_time_left, blink_interval * 2.0) < blink_interval
-	modulate.a = 1.0 if invulnerable_time_left == 0.0 or blink_on else blink_alpha
+	if invulnerable_time_left == 0.0:
+		modulate.a = 1.0
+	elif SettingsManager.is_reduce_flashing_enabled():
+		# Steady see-through ship instead of blinking.
+		modulate.a = steady_invulnerable_alpha
+	else:
+		var blink_on := fmod(invulnerable_time_left, blink_interval * 2.0) < blink_interval
+		modulate.a = 1.0 if blink_on else blink_alpha
 
 
 func _collect_pickups() -> void:
@@ -299,8 +308,9 @@ func _check_hazard_contact() -> void:
 			return
 
 
-## Flames flicker and stretch with thrust; particles follow the same throttle.
-## Boosting lengthens and widens the flame, adds the boost plume and trail.
+## Flames flicker and stretch with thrust; particles and the engine sound follow
+## the same throttle. Boosting lengthens and widens the flame, adds the boost
+## plume and trail.
 func _update_thrust_visuals() -> void:
 	if not is_node_ready():
 		return
@@ -318,8 +328,10 @@ func _update_thrust_visuals() -> void:
 	_reverse_flames.visible = reverse_amount > 0.0
 	if _reverse_flames.visible:
 		_reverse_flames.scale = Vector2(1.0, _flicker())
+	var reverse_throttle := reverse_amount / maxf(settings.reverse_thrust_ratio, 0.01)
 	for exhaust in _reverse_exhausts:
-		exhaust.set_throttle(reverse_amount / maxf(settings.reverse_thrust_ratio, 0.01))
+		exhaust.set_throttle(reverse_throttle)
+	_engine_audio.set_thrust(forward_amount, reverse_throttle, is_boosting)
 
 
 func _update_shield_visuals(delta: float) -> void:
@@ -343,6 +355,7 @@ func _reset_engine_effects() -> void:
 		exhaust.reset()
 	_boost_trail.active = false
 	_boost_trail.clear_trail()
+	_engine_audio.silence()
 
 
 func _on_wrapped(_from: Vector2, _to: Vector2) -> void:

@@ -1,0 +1,170 @@
+[gd_resource type="Resource" script_class="AudioLibrary" load_steps=36 format=3]
+
+[ext_resource type="Script" path="res://scripts/audio_library.gd" id="1_library"]
+[ext_resource type="Script" path="res://scripts/sound_effect.gd" id="2_sound"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/menu.wav" id="3_menu"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/game_base.wav" id="4_game"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/game_intensity.wav" id="5_game_layer"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/laser.wav" id="6_laser"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/enemy_laser.wav" id="7_enemy_laser"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/asteroid_explode.wav" id="8_asteroid_explode"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/ufo_explode.wav" id="9_ufo_explode"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/player_explode.wav" id="10_player_explode"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/boost.wav" id="11_boost"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/pickup.wav" id="12_pickup"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/shield_hit.wav" id="13_shield_hit"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/wave_start.wav" id="14_wave_start"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/wave_complete.wav" id="15_wave_complete"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/extra_life.wav" id="16_extra_life"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/ui_move.wav" id="17_ui_move"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/ui_select.wav" id="18_ui_select"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/ui_back.wav" id="19_ui_back"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/game_over.wav" id="20_game_over"]
+
+[sub_resource type="Resource" id="Sound_laser"]
+script = ExtResource("2_sound")
+id = &"laser"
+stream = ExtResource("6_laser")
+volume_db = -7.0
+pitch_variation = 0.06
+min_interval = 0.04
+max_voices = 4
+
+[sub_resource type="Resource" id="Sound_enemy_laser"]
+script = ExtResource("2_sound")
+id = &"enemy_laser"
+stream = ExtResource("7_enemy_laser")
+volume_db = -6.0
+pitch_variation = 0.05
+min_interval = 0.05
+max_voices = 3
+
+[sub_resource type="Resource" id="Sound_asteroid_explode"]
+script = ExtResource("2_sound")
+id = &"asteroid_explode"
+stream = ExtResource("8_asteroid_explode")
+volume_db = -3.0
+pitch_variation = 0.08
+min_interval = 0.03
+max_voices = 5
+
+[sub_resource type="Resource" id="Sound_ufo_explode"]
+script = ExtResource("2_sound")
+id = &"ufo_explode"
+stream = ExtResource("9_ufo_explode")
+volume_db = -1.0
+pitch_variation = 0.05
+min_interval = 0.0
+max_voices = 2
+
+[sub_resource type="Resource" id="Sound_player_explode"]
+script = ExtResource("2_sound")
+id = &"player_explode"
+stream = ExtResource("10_player_explode")
+volume_db = 0.0
+pitch_variation = 0.0
+min_interval = 0.0
+max_voices = 1
+
+[sub_resource type="Resource" id="Sound_boost"]
+script = ExtResource("2_sound")
+id = &"boost"
+stream = ExtResource("11_boost")
+volume_db = -3.0
+pitch_variation = 0.04
+min_interval = 0.1
+max_voices = 1
+
+[sub_resource type="Resource" id="Sound_pickup"]
+script = ExtResource("2_sound")
+id = &"pickup"
+stream = ExtResource("12_pickup")
+volume_db = -2.0
+pitch_variation = 0.0
+min_interval = 0.05
+max_voices = 2
+
+[sub_resource type="Resource" id="Sound_shield_hit"]
+script = ExtResource("2_sound")
+id = &"shield_hit"
+stream = ExtResource("13_shield_hit")
+volume_db = -3.0
+pitch_variation = 0.05
+min_interval = 0.05
+max_voices = 3
+
+[sub_resource type="Resource" id="Sound_wave_start"]
+script = ExtResource("2_sound")
+id = &"wave_start"
+stream = ExtResource("14_wave_start")
+volume_db = -4.0
+pitch_variation = 0.0
+min_interval = 0.2
+max_voices = 1
+
+[sub_resource type="Resource" id="Sound_wave_complete"]
+script = ExtResource("2_sound")
+id = &"wave_complete"
+stream = ExtResource("15_wave_complete")
+volume_db = -4.0
+pitch_variation = 0.0
+min_interval = 0.2
+max_voices = 1
+
+[sub_resource type="Resource" id="Sound_extra_life"]
+script = ExtResource("2_sound")
+id = &"extra_life"
+stream = ExtResource("16_extra_life")
+volume_db = -3.0
+pitch_variation = 0.0
+min_interval = 0.2
+max_voices = 1
+
+[sub_resource type="Resource" id="Sound_ui_move"]
+script = ExtResource("2_sound")
+id = &"ui_move"
+stream = ExtResource("17_ui_move")
+volume_db = -12.0
+pitch_variation = 0.0
+min_interval = 0.03
+max_voices = 2
+
+[sub_resource type="Resource" id="Sound_ui_select"]
+script = ExtResource("2_sound")
+id = &"ui_select"
+stream = ExtResource("18_ui_select")
+volume_db = -7.0
+pitch_variation = 0.0
+min_interval = 0.05
+max_voices = 2
+
+[sub_resource type="Resource" id="Sound_ui_back"]
+script = ExtResource("2_sound")
+id = &"ui_back"
+stream = ExtResource("19_ui_back")
+volume_db = -7.0
+pitch_variation = 0.0
+min_interval = 0.05
+max_voices = 2
+
+[sub_resource type="Resource" id="Sound_game_over"]
+script = ExtResource("2_sound")
+id = &"game_over"
+stream = ExtResource("20_game_over")
+volume_db = -2.0
+pitch_variation = 0.0
+min_interval = 0.5
+max_voices = 1
+
+[resource]
+script = ExtResource("1_library")
+sounds = Array[ExtResource("2_sound")]([SubResource("Sound_laser"), SubResource("Sound_enemy_laser"), SubResource("Sound_asteroid_explode"), SubResource("Sound_ufo_explode"), SubResource("Sound_player_explode"), SubResource("Sound_boost"), SubResource("Sound_pickup"), SubResource("Sound_shield_hit"), SubResource("Sound_wave_start"), SubResource("Sound_wave_complete"), SubResource("Sound_extra_life"), SubResource("Sound_ui_move"), SubResource("Sound_ui_select"), SubResource("Sound_ui_back"), SubResource("Sound_game_over")])
+menu_music = ExtResource("3_menu")
+game_music = ExtResource("4_game")
+game_music_intensity = ExtResource("5_game_layer")
+menu_music_db = -4.0
+game_music_db = -6.0
+music_fade_time = 1.2
+paused_duck_db = -12.0
+intensity_start_wave = 3
+intensity_full_wave = 7

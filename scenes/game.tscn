@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/playfield.gd" id="3_playfield"]
@@ -29,6 +29,7 @@
 [ext_resource type="Resource" path="res://resources/effects/effect_settings.tres" id="28_effect_settings"]
 [ext_resource type="Script" path="res://scripts/screen_shake.gd" id="29_camera"]
 [ext_resource type="PackedScene" path="res://scenes/screen_flash.tscn" id="30_flash"]
+[ext_resource type="Script" path="res://scripts/game_audio.gd" id="31_game_audio"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_game")
@@ -84,6 +85,9 @@ position = Vector2(960, 540)
 script = ExtResource("29_camera")
 
 [node name="ScreenFlash" parent="." instance=ExtResource("30_flash")]
+
+[node name="Audio" type="Node" parent="."]
+script = ExtResource("31_game_audio")
 
 [node name="Timers" type="Node" parent="."]
 script = ExtResource("13_timers")

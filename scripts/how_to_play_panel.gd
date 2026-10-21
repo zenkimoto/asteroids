@@ -26,7 +26,9 @@ func _ready() -> void:
 	_body.text = build_text(GameManager.balance)
 
 
+## Rebuilt on each open so rebound keys show up.
 func open() -> void:
+	_body.text = build_text(GameManager.balance)
 	super()
 	_body.scroll_to_line(0)
 

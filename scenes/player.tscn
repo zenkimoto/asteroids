@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Resource" path="res://resources/game_balance/player_movement.tres" id="2_settings"]
@@ -10,6 +10,8 @@
 [ext_resource type="Resource" path="res://resources/effects/exhaust_boost.tres" id="8_exhaust_boost"]
 [ext_resource type="Resource" path="res://resources/effects/exhaust_reverse.tres" id="9_exhaust_reverse"]
 [ext_resource type="Script" path="res://scripts/boost_trail.gd" id="10_trail"]
+[ext_resource type="Script" path="res://scripts/engine_audio.gd" id="11_engine_audio"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/thrust_loop.wav" id="12_thrust_loop"]
 
 [sub_resource type="Curve" id="Curve_trail_width"]
 _data = [Vector2(0, 0), 0.0, 1.0, 0, 0, Vector2(1, 1), 1.0, 0.0, 0, 0]
@@ -134,3 +136,9 @@ position = Vector2(0, -28)
 script = ExtResource("3_weapon")
 settings = ExtResource("4_weapon_settings")
 projectile_scene = ExtResource("5_projectile")
+
+[node name="EngineAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_thrust_loop")
+volume_db = -80.0
+bus = &"SFX"
+script = ExtResource("11_engine_audio")

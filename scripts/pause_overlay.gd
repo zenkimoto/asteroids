@@ -38,6 +38,7 @@ func _ready() -> void:
 	_settings_panel.closed.connect(_on_panel_closed)
 	_confirm_dialog.closed.connect(_on_panel_closed)
 	_confirm_dialog.confirmed.connect(_on_confirmed)
+	MenuPanel.wrap_focus([_resume_button, _restart_button, _settings_button, _main_menu_button, _quit_button])
 
 
 func show_menu() -> void:

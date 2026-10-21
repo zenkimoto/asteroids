@@ -22,6 +22,9 @@ GameManager="*res://scripts/game_manager.gd"
 ScoreManager="*res://scripts/score_manager.gd"
 SaveManager="*res://scripts/save_manager.gd"
 SettingsManager="*res://scripts/settings_manager.gd"
+AudioManager="*res://scripts/audio_manager.gd"
+KeyBindings="*res://scripts/key_bindings.gd"
+MenuFeedback="*res://scripts/menu_feedback.gd"
 
 [display]
 

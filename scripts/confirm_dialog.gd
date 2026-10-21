@@ -14,6 +14,7 @@ func _ready() -> void:
 	super()
 	_confirm_button.pressed.connect(_on_confirm_pressed)
 	_cancel_button.pressed.connect(close)
+	MenuPanel.wrap_focus([_confirm_button, _cancel_button], false)
 
 
 func ask(message: String, confirm_text: String = "Yes") -> void:

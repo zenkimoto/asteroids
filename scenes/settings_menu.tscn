@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/settings_panel.gd" id="1_settings"]
+[ext_resource type="PackedScene" path="res://scenes/controls_menu.tscn" id="2_controls"]
 
 [node name="SettingsPanel" type="Control" node_paths=PackedStringArray("default_focus")]
 layout_mode = 3
@@ -34,7 +35,7 @@ layout_mode = 2
 
 [node name="Column" type="VBoxContainer" parent="Center/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 22
+theme_override_constants/separation = 20
 
 [node name="Title" type="Label" parent="Center/Panel/Column"]
 layout_mode = 2
@@ -146,13 +147,13 @@ text = "Mute"
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8, 0.3, 1)
 theme_override_font_sizes/font_size = 30
-text = "DISPLAY AND GAMEPLAY"
+text = "DISPLAY, GAMEPLAY AND ACCESSIBILITY"
 
 [node name="Options" type="GridContainer" parent="Center/Panel/Column"]
 layout_mode = 2
 theme_override_constants/h_separation = 28
 theme_override_constants/v_separation = 14
-columns = 2
+columns = 4
 
 [node name="FullscreenLabel" type="Label" parent="Center/Panel/Column/Options"]
 custom_minimum_size = Vector2(260, 0)
@@ -207,10 +208,44 @@ theme_override_font_sizes/font_size = 26
 toggle_mode = true
 text = "OFF"
 
+[node name="ReduceFlashingLabel" type="Label" parent="Center/Panel/Column/Options"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Reduce flashing"
+
+[node name="ReduceFlashingToggle" type="Button" parent="Center/Panel/Column/Options"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 26
+toggle_mode = true
+text = "OFF"
+
+[node name="LargeHudLabel" type="Label" parent="Center/Panel/Column/Options"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Large HUD text"
+
+[node name="LargeHudToggle" type="Button" parent="Center/Panel/Column/Options"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 26
+toggle_mode = true
+text = "OFF"
+
 [node name="Buttons" type="HBoxContainer" parent="Center/Panel/Column"]
 layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 24
+
+[node name="ControlsButton" type="Button" parent="Center/Panel/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 68)
+layout_mode = 2
+text = "Controls"
 
 [node name="ResetButton" type="Button" parent="Center/Panel/Column/Buttons"]
 unique_name_in_owner = true
@@ -223,3 +258,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(300, 68)
 layout_mode = 2
 text = "Back"
+
+[node name="ControlsPanel" parent="." instance=ExtResource("2_controls")]
+unique_name_in_owner = true
+layout_mode = 1

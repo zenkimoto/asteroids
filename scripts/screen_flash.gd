@@ -18,7 +18,7 @@ func _ready() -> void:
 
 func flash(color: Color, strength: float, duration: float) -> void:
 	var alpha := minf(strength, max_alpha)
-	if alpha <= 0.0:
+	if alpha <= 0.0 or SettingsManager.is_reduce_flashing_enabled():
 		return
 	# A stronger flash replaces a fading weaker one; a weaker one never cuts a strong one short.
 	if _tween != null and _tween.is_running() and _rect.color.a > alpha:

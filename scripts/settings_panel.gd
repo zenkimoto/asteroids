@@ -1,7 +1,8 @@
 class_name SettingsPanel
 extends MenuPanel
 ## Edits SettingsManager's values: audio volumes and mutes, fullscreen, screen
-## shake, particle intensity and the FPS counter. Changes apply and save at once;
+## shake, particle intensity, the FPS counter and the accessibility options
+## (reduce flashing, large HUD text), and opens the Controls panel. Changes apply and save at once;
 ## the controls follow SettingsManager, so they stay in sync wherever they change.
 ## On/off settings are toggle buttons whose text spells out the state.
 
@@ -18,6 +19,11 @@ extends MenuPanel
 @onready var _shake_toggle: Button = %ShakeToggle
 @onready var _particles_option: OptionButton = %ParticlesOption
 @onready var _fps_toggle: Button = %FpsToggle
+@onready var _reduce_flashing_toggle: Button = %ReduceFlashingToggle
+@onready var _large_hud_toggle: Button = %LargeHudToggle
+@onready var _controls_button: Button = %ControlsButton
+@onready var _controls_panel: ControlsPanel = %ControlsPanel
+@onready var _center: Control = $Center
 @onready var _reset_button: Button = %ResetButton
 @onready var _back_button: Button = %BackButton
 
@@ -43,6 +49,8 @@ func _ready() -> void:
 		SettingsManager.FULLSCREEN: _fullscreen_toggle,
 		SettingsManager.SCREEN_SHAKE: _shake_toggle,
 		SettingsManager.SHOW_FPS: _fps_toggle,
+		SettingsManager.REDUCE_FLASHING: _reduce_flashing_toggle,
+		SettingsManager.LARGE_HUD: _large_hud_toggle,
 	}
 	_mute_keys = [SettingsManager.MASTER_MUTED, SettingsManager.MUSIC_MUTED, SettingsManager.SFX_MUTED]
 	for key: StringName in _volume_rows:
@@ -58,6 +66,8 @@ func _ready() -> void:
 		_particles_option.add_item(SettingsManager.PARTICLE_INTENSITY_NAMES[i], i)
 	_particles_option.item_selected.connect(_on_particles_selected)
 	_reset_button.pressed.connect(SettingsManager.reset_to_defaults)
+	_controls_button.pressed.connect(_open_controls)
+	_controls_panel.closed.connect(_on_controls_closed)
 	_back_button.pressed.connect(close)
 	SettingsManager.setting_changed.connect(_on_setting_changed)
 	_sync_all()
@@ -65,7 +75,25 @@ func _ready() -> void:
 
 func open() -> void:
 	_sync_all()
+	_controls_panel.visible = false
+	_center.visible = true
 	super()
+
+
+func close() -> void:
+	_controls_panel.visible = false
+	_center.visible = true
+	super()
+
+
+func _open_controls() -> void:
+	_center.visible = false
+	_controls_panel.open()
+
+
+func _on_controls_closed() -> void:
+	_center.visible = true
+	_controls_button.grab_focus()
 
 
 func _sync_all() -> void:

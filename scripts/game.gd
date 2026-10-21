@@ -18,6 +18,7 @@ extends Node2D
 @onready var pause_overlay: PauseOverlay = $PauseOverlay
 @onready var game_over_screen: GameOverScreen = $GameOverScreen
 @onready var effects: GameEffects = $Effects
+@onready var audio: GameAudio = $Audio
 
 var _rng := RandomNumberGenerator.new()
 
@@ -35,6 +36,7 @@ func _ready() -> void:
 	ufo_fleet.ufo_destroyed.connect(power_ups.drop_from_ufo)
 	power_ups.collected.connect(power_up_effects.apply)
 	_connect_effects()
+	_connect_audio()
 	power_up_effects.power_up_applied.connect(hud.on_power_up_applied)
 	power_up_effects.effect_started.connect(hud.on_effect_started)
 	power_up_effects.effect_ended.connect(hud.on_effect_ended)
@@ -75,6 +77,21 @@ func _connect_effects() -> void:
 	wave_manager.wave_completed.connect(effects.on_wave_completed)
 
 
+## Sound for gameplay events; like effects, audio never changes game state.
+func _connect_audio() -> void:
+	player.weapon.fired.connect(audio.on_player_fired)
+	player.died.connect(audio.on_player_died)
+	player.boost_started.connect(audio.on_boost_started)
+	player.shield_absorbed.connect(audio.on_shield_absorbed)
+	asteroid_field.asteroid_destroyed.connect(audio.on_asteroid_destroyed)
+	ufo_fleet.ufo_spawned.connect(audio.on_ufo_spawned)
+	ufo_fleet.ufo_destroyed.connect(audio.on_ufo_destroyed)
+	power_ups.pickup_collected.connect(audio.on_pickup_collected)
+	wave_manager.wave_started.connect(audio.on_wave_started)
+	wave_manager.wave_completed.connect(audio.on_wave_completed)
+	ScoreManager.extra_life_awarded.connect(audio.on_extra_life_awarded)
+
+
 func _exit_tree() -> void:
 	if is_instance_valid(GameManager):
 		GameManager.end_session()
@@ -105,6 +122,7 @@ func _on_session_started() -> void:
 	power_up_effects.clear()
 	effects.clear()
 	wave_announcer.hide_now()
+	hud.set_best(SaveManager.leaderboard.get_best_score())
 	player.respawn(Playfield.get_center(), _rules().invulnerability_duration)
 	wave_manager.start()
 

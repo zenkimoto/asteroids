@@ -47,6 +47,7 @@ func _ready() -> void:
 	_name_entry.submitted.connect(_on_name_submitted)
 	_leaderboard_panel.closed.connect(_on_leaderboard_closed)
 	_input_delay_timer.timeout.connect(_on_input_delay_finished)
+	MenuPanel.wrap_focus([_play_again_button, _leaderboard_button, _main_menu_button, _quit_button], false)
 
 
 func show_results(summary: SessionSummary) -> void:
@@ -55,7 +56,7 @@ func show_results(summary: SessionSummary) -> void:
 	_saved_entry = null
 	_qualifying_rank = SaveManager.leaderboard.get_rank_for(summary.score)
 	_is_new_high_score = SaveManager.leaderboard.is_new_high_score(summary.score)
-	_score_value.text = str(summary.score)
+	_count_up(summary.score)
 	_wave_value.text = str(summary.highest_wave)
 	_asteroids_value.text = str(summary.asteroids_destroyed)
 	_ufos_value.text = str(summary.ufos_destroyed)
@@ -66,7 +67,17 @@ func show_results(summary: SessionSummary) -> void:
 	_content.visible = true
 	_set_buttons_enabled(false)
 	visible = true
+	_content.modulate.a = 0.0
+	create_tween().tween_property(_content, "modulate:a", 1.0, 0.35)
 	_input_delay_timer.start(maxf(input_delay, 0.001))
+
+
+## Rolls the final score up from zero while the input delay runs.
+func _count_up(score: int) -> void:
+	_score_value.text = "0"
+	var tween := create_tween()
+	tween.tween_method(func(value: float) -> void: _score_value.text = str(roundi(value)),
+			0.0, float(score), clampf(score / 4000.0, 0.3, 1.0)).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 
 
 func hide_results() -> void:
