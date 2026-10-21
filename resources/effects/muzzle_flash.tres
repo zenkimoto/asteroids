@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ParticleBurstSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/particle_burst_settings.gd" id="1_settings"]
+
+[resource]
+script = ExtResource("1_settings")
+amount = 5
+lifetime = 0.15
+spread_degrees = 25.0
+speed_min = 60.0
+speed_max = 160.0
+damping = 400.0
+scale_min = 0.12
+scale_max = 0.25
+emission_radius = 1.0
+start_brightness = 1.6

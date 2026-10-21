@@ -1,12 +1,9 @@
 class_name MenuBackground
 extends Node2D
-## Main menu backdrop: dark space with three layers of slowly drifting stars,
-## and asteroids that occasionally float across the screen.
+## Main menu backdrop: dark space (stars come from a Starfield child) and
+## asteroids that occasionally float across the screen.
 
 @export var background_color: Color = Color(0.02, 0.02, 0.06)
-@export_range(0, 2000) var star_count: int = 260
-## Drift direction and speed of the nearest star layer; farther layers move slower.
-@export var star_drift: Vector2 = Vector2(-18.0, 6.0)
 @export var asteroid_scene: PackedScene
 @export var asteroid_container: EntityContainer
 @export_range(0, 20) var max_asteroids: int = 5
@@ -18,45 +15,22 @@ extends Node2D
 @export_range(5.0, 120.0, 1.0) var asteroid_lifetime: float = 40.0
 @export_range(0.1, 5.0, 0.1) var asteroid_fade_time: float = 1.5
 
-const LAYER_SPEEDS: PackedFloat32Array = [0.25, 0.5, 1.0]
-
 var _rng := RandomNumberGenerator.new()
-var _star_positions: PackedVector2Array = PackedVector2Array()
-var _star_layers: PackedInt32Array = PackedInt32Array()
-var _star_radii: PackedFloat32Array = PackedFloat32Array()
-var _star_alphas: PackedFloat32Array = PackedFloat32Array()
 var _spawn_time_left: float = 0.0
 var _ages: Dictionary = {}
 
 
 func _ready() -> void:
 	_rng.randomize()
-	var field := Playfield.get_playfield_size()
-	_star_positions.resize(star_count)
-	_star_layers.resize(star_count)
-	_star_radii.resize(star_count)
-	_star_alphas.resize(star_count)
-	for i in star_count:
-		_star_positions[i] = Vector2(_rng.randf() * field.x, _rng.randf() * field.y)
-		_star_layers[i] = _rng.randi_range(0, LAYER_SPEEDS.size() - 1)
-		_star_radii[i] = 0.6 + 0.5 * _star_layers[i] + _rng.randf() * 0.4
-		_star_alphas[i] = 0.25 + 0.25 * _star_layers[i] + _rng.randf() * 0.2
 	_spawn_time_left = 0.5
 
 
 func _process(delta: float) -> void:
-	var field := Playfield.get_playfield_size()
-	for i in _star_positions.size():
-		var p := _star_positions[i] + star_drift * LAYER_SPEEDS[_star_layers[i]] * delta
-		_star_positions[i] = Vector2(fposmod(p.x, field.x), fposmod(p.y, field.y))
-	queue_redraw()
 	_update_asteroids(delta)
 
 
 func _draw() -> void:
 	draw_rect(Playfield.get_playfield_rect(), background_color)
-	for i in _star_positions.size():
-		draw_circle(_star_positions[i], _star_radii[i], Color(1.0, 1.0, 1.0, _star_alphas[i]))
 
 
 func _update_asteroids(delta: float) -> void:

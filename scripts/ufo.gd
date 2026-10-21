@@ -19,6 +19,11 @@ signal fired(projectile: EnemyProjectile)
 
 @export var ufo_type: Type = Type.LARGE
 @export var projectile_scene: PackedScene
+@export_group("Running lights")
+@export_range(0, 16) var light_count: int = 5
+## Steps per second of the chasing light pattern; faster while attacking.
+@export_range(0.5, 30.0, 0.5) var light_chase_speed: float = 6.0
+@export_range(1.0, 6.0, 0.25) var attack_chase_multiplier: float = 3.0
 
 var state: State = State.ENTERING
 var type_settings: UfoTypeSettings
@@ -40,12 +45,16 @@ var _drift: float = 0.0
 var _drift_time_left: float = 0.0
 var _fire_cooldown: float = 0.0
 var _windup_left: float = 0.0
+var _lights: Array[Polygon2D] = []
+var _light_phase: float = 0.0
 
 @onready var _collision: CollisionPolygon2D = $Collision
 @onready var _hull: Polygon2D = $Hull
 @onready var _dome: Polygon2D = $Dome
 @onready var _outline: Line2D = $Outline
 @onready var _band: Line2D = $Band
+@onready var _glow: Line2D = $Glow
+@onready var _lights_root: Node2D = $Lights
 
 
 func setup(
@@ -83,6 +92,10 @@ func get_radius() -> float:
 	return type_settings.radius
 
 
+func get_outline() -> PackedVector2Array:
+	return _outline.points
+
+
 func get_score_value() -> int:
 	return type_settings.score
 
@@ -95,6 +108,7 @@ func take_hit(damage: int = 1) -> bool:
 	hit_points -= damage
 	if hit_points > 0:
 		_flash(_outline, type_settings.hit_flash_color, type_settings.outline_color)
+		_flash_hull()
 		damaged.emit(self, hit_points)
 		return true
 	destroyed.emit(self)
@@ -103,6 +117,7 @@ func take_hit(damage: int = 1) -> bool:
 
 
 func _entity_physics_process(delta: float) -> void:
+	_update_lights(delta)
 	match state:
 		State.ENTERING:
 			if _is_fully_inside():
@@ -197,6 +212,37 @@ func _flash(line: Line2D, flash_color: Color, base_color: Color) -> void:
 	tween.tween_property(line, "default_color", base_color, 0.15)
 
 
+func _flash_hull() -> void:
+	_hull.color = type_settings.hull_color.lerp(type_settings.hit_flash_color, 0.5)
+	var tween := create_tween()
+	tween.tween_property(_hull, "color", type_settings.hull_color, 0.15)
+
+
+## Chasing running lights along the band: one bright light travels across, the
+## rest glow dimly. While winding up to fire they chase faster in the attack colour.
+func _update_lights(delta: float) -> void:
+	if _lights.is_empty():
+		return
+	var attacking := state == State.ATTACKING
+	_light_phase += delta * light_chase_speed * (attack_chase_multiplier if attacking else 1.0)
+	var lead := int(_light_phase) % _lights.size()
+	var color := type_settings.attack_color if attacking else type_settings.outline_color
+	for i in _lights.size():
+		var distance := (lead - i + _lights.size()) % _lights.size()
+		_lights[i].color = Color(color, 1.0 if distance == 0 else (0.55 if distance == 1 else 0.2))
+
+
+func _build_lights(r: float) -> void:
+	for i in light_count:
+		var light := Polygon2D.new()
+		var x := lerpf(-0.7 * r, 0.7 * r, (i + 0.5) / light_count)
+		var size := maxf(r * 0.07, 2.0)
+		light.polygon = PackedVector2Array([Vector2(-size, 0), Vector2(0, -size), Vector2(size, 0), Vector2(0, size)])
+		light.position = Vector2(x, 0.14 * r)
+		_lights_root.add_child(light)
+		_lights.append(light)
+
+
 ## Classic saucer: a wide hull with a band across the middle and a dome on top.
 func _build_shape(r: float) -> void:
 	var body := PackedVector2Array([
@@ -209,6 +255,9 @@ func _build_shape(r: float) -> void:
 	_hull.color = type_settings.hull_color
 	_outline.points = body
 	_outline.default_color = type_settings.outline_color
+	_glow.points = body
+	_glow.default_color = Color(type_settings.outline_color, 0.18)
+	_build_lights(r)
 	_dome.polygon = PackedVector2Array([
 		Vector2(-0.3 * r, -0.32 * r), Vector2(-0.22 * r, -0.62 * r),
 		Vector2(0.22 * r, -0.62 * r), Vector2(0.3 * r, -0.32 * r),

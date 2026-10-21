@@ -17,6 +17,7 @@ extends Node2D
 @onready var hud: Hud = $Hud
 @onready var pause_overlay: PauseOverlay = $PauseOverlay
 @onready var game_over_screen: GameOverScreen = $GameOverScreen
+@onready var effects: GameEffects = $Effects
 
 var _rng := RandomNumberGenerator.new()
 
@@ -33,6 +34,7 @@ func _ready() -> void:
 	ufo_fleet.ufo_destroyed.connect(ScoreManager.record_ufo_destroyed)
 	ufo_fleet.ufo_destroyed.connect(power_ups.drop_from_ufo)
 	power_ups.collected.connect(power_up_effects.apply)
+	_connect_effects()
 	power_up_effects.power_up_applied.connect(hud.on_power_up_applied)
 	power_up_effects.effect_started.connect(hud.on_effect_started)
 	power_up_effects.effect_ended.connect(hud.on_effect_ended)
@@ -58,6 +60,19 @@ func _ready() -> void:
 	game_over_screen.main_menu_requested.connect(GameManager.open_main_menu)
 	game_over_screen.quit_requested.connect(GameManager.quit_game)
 	GameManager.start_session()
+
+
+## Visual feedback for gameplay events; effects never change game state.
+func _connect_effects() -> void:
+	asteroid_field.asteroid_destroyed.connect(effects.on_asteroid_destroyed)
+	ufo_fleet.ufo_destroyed.connect(effects.on_ufo_destroyed)
+	ufo_fleet.ufo_spawned.connect(effects.on_ufo_spawned)
+	player.weapon.fired.connect(effects.on_player_fired)
+	player.died.connect(effects.on_player_died)
+	player.shield_absorbed.connect(effects.on_shield_absorbed)
+	power_ups.pickup_collected.connect(effects.on_pickup_collected)
+	wave_manager.wave_started.connect(effects.on_wave_started)
+	wave_manager.wave_completed.connect(effects.on_wave_completed)
 
 
 func _exit_tree() -> void:
@@ -88,6 +103,7 @@ func _on_session_started() -> void:
 	asteroid_field.clear()
 	power_ups.clear()
 	power_up_effects.clear()
+	effects.clear()
 	wave_announcer.hide_now()
 	player.respawn(Playfield.get_center(), _rules().invulnerability_duration)
 	wave_manager.start()

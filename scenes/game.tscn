@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/playfield.gd" id="3_playfield"]
@@ -24,12 +24,22 @@
 [ext_resource type="Resource" path="res://resources/game_balance/power_ups.tres" id="23_power_up_settings"]
 [ext_resource type="PackedScene" path="res://scenes/power_up_pickup.tscn" id="24_pickup"]
 [ext_resource type="Script" path="res://scripts/power_up_effects.gd" id="25_effects"]
+[ext_resource type="Script" path="res://scripts/starfield.gd" id="26_starfield"]
+[ext_resource type="Script" path="res://scripts/game_effects.gd" id="27_game_effects"]
+[ext_resource type="Resource" path="res://resources/effects/effect_settings.tres" id="28_effect_settings"]
+[ext_resource type="Script" path="res://scripts/screen_shake.gd" id="29_camera"]
+[ext_resource type="PackedScene" path="res://scenes/screen_flash.tscn" id="30_flash"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_game")
 
 [node name="Playfield" type="Node2D" parent="."]
 script = ExtResource("3_playfield")
+star_count = 0
+
+[node name="Starfield" type="Node2D" parent="." node_paths=PackedStringArray("parallax_source")]
+script = ExtResource("26_starfield")
+parallax_source = NodePath("../Player")
 
 [node name="AsteroidField" type="Node2D" parent="." node_paths=PackedStringArray("player")]
 script = ExtResource("4_field")
@@ -61,6 +71,19 @@ script = ExtResource("12_container")
 
 [node name="Player" parent="." instance=ExtResource("7_player")]
 position = Vector2(960, 540)
+
+[node name="Effects" type="Node2D" parent="." node_paths=PackedStringArray("camera", "screen_flash", "player")]
+script = ExtResource("27_game_effects")
+settings = ExtResource("28_effect_settings")
+camera = NodePath("../Camera")
+screen_flash = NodePath("../ScreenFlash")
+player = NodePath("../Player")
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+script = ExtResource("29_camera")
+
+[node name="ScreenFlash" parent="." instance=ExtResource("30_flash")]
 
 [node name="Timers" type="Node" parent="."]
 script = ExtResource("13_timers")

@@ -12,6 +12,12 @@ projectile_scene = ExtResource("2_shot")
 
 [node name="Collision" type="CollisionPolygon2D" parent="."]
 
+[node name="Glow" type="Line2D" parent="."]
+closed = true
+width = 9.0
+joint_mode = 2
+antialiased = true
+
 [node name="Hull" type="Polygon2D" parent="."]
 
 [node name="Dome" type="Polygon2D" parent="."]
@@ -25,3 +31,5 @@ antialiased = true
 [node name="Band" type="Line2D" parent="."]
 width = 2.0
 antialiased = true
+
+[node name="Lights" type="Node2D" parent="."]

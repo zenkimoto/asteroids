@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EffectSettings" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/effect_settings.gd" id="1_settings"]
+[ext_resource type="Resource" path="res://resources/effects/asteroid_debris.tres" id="2_debris"]
+[ext_resource type="Resource" path="res://resources/effects/explosion_core.tres" id="3_core"]
+[ext_resource type="Resource" path="res://resources/effects/explosion_sparks.tres" id="4_sparks"]
+[ext_resource type="Resource" path="res://resources/effects/projectile_impact.tres" id="5_impact"]
+[ext_resource type="Resource" path="res://resources/effects/muzzle_flash.tres" id="6_muzzle"]
+[ext_resource type="Resource" path="res://resources/effects/pickup_sparkle.tres" id="7_sparkle"]
+[ext_resource type="Resource" path="res://resources/effects/shield_break.tres" id="8_shield"]
+
+[resource]
+script = ExtResource("1_settings")
+asteroid_debris = ExtResource("2_debris")
+explosion_core = ExtResource("3_core")
+explosion_sparks = ExtResource("4_sparks")
+projectile_impact = ExtResource("5_impact")
+muzzle_flash = ExtResource("6_muzzle")
+pickup_sparkle = ExtResource("7_sparkle")
+shield_break = ExtResource("8_shield")

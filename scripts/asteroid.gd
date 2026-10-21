@@ -23,11 +23,15 @@ var max_hit_points: int = 1
 var _radius: float = 0.0
 
 var _outline: PackedVector2Array = PackedVector2Array()
+## Surface craters as Vector3(x, y, radius), drawn as faint rings.
+var _crater_specs: Array[Vector3] = []
 
 @onready var _fill: Polygon2D = $Fill
 @onready var _outline_line: Line2D = $Outline
 @onready var _collision: CollisionPolygon2D = $Collision
 @onready var _plating: Line2D = $Plating
+@onready var _glow: Line2D = $Glow
+@onready var _craters: Node2D = $Craters
 
 
 func setup(
@@ -51,6 +55,7 @@ func setup(
 	spin = rng.randf_range(settings.min_spin, settings.max_spin) * (1.0 if rng.randf() < 0.5 else -1.0)
 	rotation = rng.randf() * TAU
 	_outline = _generate_outline(rng, settings)
+	_crater_specs = _generate_craters(rng)
 
 
 func _ready() -> void:
@@ -63,6 +68,21 @@ func _ready() -> void:
 	_plating.visible = variant_settings.show_plating
 	_plating.default_color = variant_settings.plating_color
 	_plating.points = _scaled_outline(0.62)
+	_glow.points = _outline
+	_glow.default_color = Color(variant_settings.outline_color, 0.16)
+	for crater in _crater_specs:
+		var ring := Line2D.new()
+		ring.closed = true
+		ring.width = 1.5
+		ring.antialiased = true
+		ring.default_color = Color(variant_settings.outline_color, 0.3)
+		for i in 10:
+			ring.add_point(Vector2(crater.x, crater.y) + Vector2.from_angle(TAU * i / 10.0) * crater.z)
+		_craters.add_child(ring)
+
+
+func get_outline() -> PackedVector2Array:
+	return _outline
 
 
 func _entity_physics_process(delta: float) -> void:
@@ -99,8 +119,10 @@ func take_hit(damage: int = 1) -> bool:
 func _show_damage() -> void:
 	_plating.modulate.a = lerpf(0.25, 1.0, float(hit_points - 1) / maxf(max_hit_points - 1, 1.0))
 	_outline_line.default_color = variant_settings.hit_flash_color
-	var tween := create_tween()
+	_fill.color = variant_settings.fill_color.lerp(variant_settings.hit_flash_color, 0.45)
+	var tween := create_tween().set_parallel(true)
 	tween.tween_property(_outline_line, "default_color", variant_settings.outline_color, 0.18)
+	tween.tween_property(_fill, "color", variant_settings.fill_color, 0.18)
 
 
 func _scaled_outline(factor: float) -> PackedVector2Array:
@@ -108,6 +130,16 @@ func _scaled_outline(factor: float) -> PackedVector2Array:
 	for point in _outline:
 		points.append(point * factor)
 	return points
+
+
+## A few craters for large and medium rocks, kept inside the outline.
+func _generate_craters(rng: RandomNumberGenerator) -> Array[Vector3]:
+	var craters: Array[Vector3] = []
+	var count := 3 if size == Size.LARGE else (1 if size == Size.MEDIUM else 0)
+	for i in count:
+		var spot := Vector2.from_angle(rng.randf() * TAU) * _radius * rng.randf_range(0.1, 0.45)
+		craters.append(Vector3(spot.x, spot.y, _radius * rng.randf_range(0.1, 0.2)))
+	return craters
 
 
 ## Points around a circle with jittered radii and angles, giving a lumpy rock.

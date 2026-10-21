@@ -13,6 +13,8 @@ signal wrapped(from_position: Vector2, to_position: Vector2)
 signal died
 signal respawned
 signal shield_changed(active: bool)
+## Emitted when the shield takes a hit in the ship's place.
+signal shield_absorbed
 
 @export var settings: PlayerMovementSettings
 ## When false the ship ignores input but keeps drifting (for later game states).
@@ -29,6 +31,9 @@ signal shield_changed(active: bool)
 @export_range(0.0, 0.5, 0.01) var flame_flicker: float = 0.15
 ## Radius of the shield ring drawn around the ship.
 @export_range(10.0, 100.0, 1.0) var shield_radius: float = 34.0
+## Shield glow pulses per second and how far its opacity swings.
+@export_range(0.1, 6.0, 0.1) var shield_pulse_speed: float = 2.2
+@export_range(0.0, 1.0, 0.05) var shield_pulse_depth: float = 0.45
 
 var velocity: Vector2 = Vector2.ZERO
 ## Net thrust input this tick: 1 = full forward, negative = reverse.
@@ -49,11 +54,18 @@ var has_shield: bool = false
 var shield_grace_time: float = 1.0
 
 var _flicker_rng := RandomNumberGenerator.new()
+var _shield_time: float = 0.0
 
 @onready var _main_flame: Node2D = $MainFlame
 @onready var _reverse_flames: Node2D = $ReverseFlames
 @onready var _collision: CollisionPolygon2D = $CollisionShape
 @onready var _shield_ring: Line2D = $Shield
+@onready var _shield_glow: Polygon2D = $ShieldGlow
+@onready var _outline: Line2D = $Outline
+@onready var _main_exhaust: EngineExhaust = $MainExhaust
+@onready var _boost_exhaust: EngineExhaust = $BoostExhaust
+@onready var _reverse_exhausts: Array[EngineExhaust] = [$ReverseExhaustLeft, $ReverseExhaustRight]
+@onready var _boost_trail: BoostTrail = $BoostTrail
 @onready var weapon: Weapon = $Weapon
 
 
@@ -65,8 +77,17 @@ func _ready() -> void:
 	for i in 32:
 		ring.append(Vector2.from_angle(TAU * i / 32.0) * shield_radius)
 	_shield_ring.points = ring
-	_shield_ring.visible = has_shield
+	_shield_glow.polygon = ring
+	_shield_glow.material = ParticleBurst.get_additive_material()
+	_update_shield_visuals(0.0)
+	wrapped.connect(_on_wrapped)
 	_update_thrust_visuals()
+
+
+## Shield pulse runs in _process so it keeps animating smoothly and stops while paused.
+func _process(delta: float) -> void:
+	if has_shield:
+		_update_shield_visuals(delta)
 
 
 func _physics_process(delta: float) -> void:
@@ -107,6 +128,19 @@ func is_invulnerable() -> bool:
 	return invulnerable_time_left > 0.0
 
 
+## The hull outline in local space (used for the break-apart effect).
+func get_outline() -> PackedVector2Array:
+	return _outline.points
+
+
+## Scales the exhaust particle counts (0-1) for the particle intensity setting.
+func set_particle_intensity(intensity: float) -> void:
+	_main_exhaust.set_intensity(intensity)
+	_boost_exhaust.set_intensity(intensity)
+	for exhaust in _reverse_exhausts:
+		exhaust.set_intensity(intensity)
+
+
 ## Destroys the ship: it disappears and stops colliding until respawn().
 func die() -> void:
 	if not is_alive:
@@ -116,6 +150,7 @@ func die() -> void:
 	reset_motion()
 	weapon.reset()
 	visible = false
+	_reset_engine_effects()
 	_collision.set_deferred("disabled", true)
 	died.emit()
 
@@ -130,6 +165,7 @@ func respawn(at: Vector2, invulnerability: float) -> void:
 	visible = true
 	invulnerable_time_left = invulnerability
 	modulate.a = 1.0
+	_reset_engine_effects()
 	_collision.set_deferred("disabled", false)
 	respawned.emit()
 
@@ -138,7 +174,8 @@ func set_shield(active: bool) -> void:
 	if active == has_shield:
 		return
 	has_shield = active
-	_shield_ring.visible = active
+	_shield_time = 0.0
+	_update_shield_visuals(0.0)
 	shield_changed.emit(active)
 
 
@@ -256,23 +293,60 @@ func _check_hazard_contact() -> void:
 			if has_shield:
 				set_shield(false)
 				invulnerable_time_left = shield_grace_time
+				shield_absorbed.emit()
 			else:
 				die()
 			return
 
 
+## Flames flicker and stretch with thrust; particles follow the same throttle.
+## Boosting lengthens and widens the flame, adds the boost plume and trail.
 func _update_thrust_visuals() -> void:
+	if not is_node_ready():
+		return
 	var forward_amount := maxf(thrust_input, 0.0)
-	_main_flame.visible = forward_amount > 0.0
+	_main_flame.visible = forward_amount > 0.0 or is_boosting
 	if _main_flame.visible:
-		var length := forward_amount * _flicker()
+		var length := maxf(forward_amount, 0.6 if is_boosting else 0.0) * _flicker()
 		if is_boosting:
 			length *= boost_flame_scale
 		_main_flame.scale = Vector2(1.0 + (0.3 if is_boosting else 0.0), length)
+	_main_exhaust.set_throttle(forward_amount)
+	_boost_exhaust.set_throttle(1.0 if is_boosting else 0.0)
+	_boost_trail.active = is_boosting
 	var reverse_amount := maxf(-thrust_input, 0.0)
 	_reverse_flames.visible = reverse_amount > 0.0
 	if _reverse_flames.visible:
 		_reverse_flames.scale = Vector2(1.0, _flicker())
+	for exhaust in _reverse_exhausts:
+		exhaust.set_throttle(reverse_amount / maxf(settings.reverse_thrust_ratio, 0.01))
+
+
+func _update_shield_visuals(delta: float) -> void:
+	_shield_ring.visible = has_shield
+	_shield_glow.visible = has_shield
+	if not has_shield:
+		return
+	_shield_time += delta
+	var pulse := 0.5 + 0.5 * sin(_shield_time * TAU * shield_pulse_speed / 2.0)
+	_shield_glow.modulate.a = 1.0 - shield_pulse_depth * pulse
+	_shield_ring.width = 3.0 + 1.5 * pulse
+	var breathe := 1.0 + 0.04 * pulse
+	_shield_ring.scale = Vector2.ONE * breathe
+	_shield_glow.scale = Vector2.ONE * breathe
+
+
+func _reset_engine_effects() -> void:
+	_main_exhaust.reset()
+	_boost_exhaust.reset()
+	for exhaust in _reverse_exhausts:
+		exhaust.reset()
+	_boost_trail.active = false
+	_boost_trail.clear_trail()
+
+
+func _on_wrapped(_from: Vector2, _to: Vector2) -> void:
+	_boost_trail.clear_trail()
 
 
 func _flicker() -> float:

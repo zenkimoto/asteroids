@@ -38,6 +38,12 @@ func launch(
 		var bolt := $Bolt as Line2D
 		bolt.default_color = pierce_color
 		bolt.width = pierce_width
+		($Glow as Line2D).default_color = Color(pierce_color, 0.3)
+
+
+## The bolt's colour, for impact and muzzle effects.
+func get_color() -> Color:
+	return ($Bolt as Line2D).default_color
 
 
 func _entity_physics_process(delta: float) -> void:

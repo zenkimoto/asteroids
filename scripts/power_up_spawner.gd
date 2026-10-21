@@ -4,6 +4,8 @@ extends EntityContainer
 ## the floating pickup where it died. Reports each collection.
 
 signal collected(definition: PowerUpDefinition)
+## Emitted just before `collected`, with the pickup itself (for effects).
+signal pickup_collected(pickup: PowerUpPickup)
 
 @export var settings: PowerUpSettings
 @export var pickup_scene: PackedScene
@@ -64,4 +66,5 @@ func _spawn_pending(generation: int, definition: PowerUpDefinition, at: Vector2)
 
 
 func _on_pickup_collected(pickup: PowerUpPickup) -> void:
+	pickup_collected.emit(pickup)
 	collected.emit(pickup.definition)

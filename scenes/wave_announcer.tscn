@@ -30,6 +30,14 @@ theme_override_font_sizes/font_size = 72
 text = "WAVE 1"
 horizontal_alignment = 1
 
+[node name="Sweep" type="ColorRect" parent="Center/Panel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+color = Color(0.3, 0.95, 1, 0.8)
+
 [node name="Subtitle" type="Label" parent="Center/Panel"]
 unique_name_in_owner = true
 layout_mode = 2

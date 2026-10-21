@@ -10,7 +10,13 @@ const WRAP_MARGIN: float = 8.0
 ## Spin of the diamond-shaped shot, in radians per second.
 const SPIN_SPEED: float = 9.0
 
+## Glow pulses per second, so shots read as hostile at a glance.
+const PULSE_SPEED: float = 10.0
+
 var _time_left: float = 0.0
+var _age: float = 0.0
+
+@onready var _glow: Polygon2D = $Glow
 
 
 func _ready() -> void:
@@ -27,6 +33,8 @@ func setup(start: Vector2, direction: Vector2, speed: float, lifetime: float) ->
 
 func _entity_physics_process(delta: float) -> void:
 	rotation += SPIN_SPEED * delta
+	_age += delta
+	_glow.scale = Vector2.ONE * (1.0 + 0.25 * sin(_age * PULSE_SPEED))
 	_time_left -= delta
 	if _time_left <= 0.0:
 		expired.emit()
