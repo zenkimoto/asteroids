@@ -1,6 +1,6 @@
 # Asteroids
 
-This project was built with Claude Opus 5.5 using the [Godot AI MCP server](https://github.com/hi-godot/godot-ai).  Project planning was done with GPT-6.
+This project was built with Claude Opus 5.5 using the [Godot AI MCP server](https://github.com/hi-godot/godot-ai).  Project planning was done with GPT-6 Astra.
 
 Initial generated documents:
 - [PLANNING.md](./PLANNING.md) - Detailed planning document describing the project to Claude describing what will be built.
