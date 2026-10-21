@@ -11,6 +11,7 @@ export.cfg
 
 # Export output
 builds/
+asteroids_release/
 
 # Imported translations (automatically generated from CSV files)
 *.translation

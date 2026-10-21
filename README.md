@@ -106,22 +106,11 @@ holds editor-side checks of the balance resources for the Godot AI test runner.
 
 ## Building a release
 
-The project includes export presets for **Windows**, **macOS** and **Linux**
-(`export_presets.cfg`). Install the 4.7.2 export templates (**Editor → Manage
-Export Templates → Download and Install**), then either use **Project → Export
-→ Export All** or run:
-
-```sh
-godot --headless --path . --export-release "Windows" builds/windows/Asteroids.exe
-godot --headless --path . --export-release "macOS"   builds/macos/Asteroids.zip
-godot --headless --path . --export-release "Linux"   builds/linux/Asteroids.x86_64
-```
-
-Exports leave out `tests/`, `tools/` and the development-only `addons/godot_ai/`
-plugin, and release builds drop the F3 debug overlays. Copy `LICENSE`,
-`THIRD_PARTY_NOTICES.md` and `licenses/` next to the game in each package. The
-macOS build is ad-hoc signed; set your own bundle identifier and signing identity
-in the preset before publishing it more widely.
+The project includes export presets for **Windows**, **macOS** and **Linux**.
+After installing the 4.7.2 export templates, use **Project → Export… → Export
+All… → Release**. The builds go to `asteroids_release/`. Step-by-step
+instructions, the preset settings and fixes for common errors are in
+[EXPORTING.md](EXPORTING.md).
 
 ## Project structure
 
