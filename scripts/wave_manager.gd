@@ -1,8 +1,9 @@
 class_name WaveManager
 extends Node
 ## Runs the endless wave cycle: countdown, spawn, completion, bonus, then the next
-## and harder wave. Difficulty comes from WaveSettings and AsteroidField does the
-## spawning. The game scene calls start() at the beginning of every session.
+## and harder wave. Difficulty comes from WaveSettings; AsteroidField and UfoFleet
+## do the spawning. A wave is complete once its asteroids, fragments included,
+## and its UFOs are all destroyed. The game scene calls start() every session.
 
 signal countdown_started(wave: int)
 signal countdown_ticked(wave: int, seconds_left: int)
@@ -11,16 +12,20 @@ signal wave_completed(wave: int, bonus: int)
 
 @export var settings: WaveSettings
 @export var asteroid_field: AsteroidField
+@export var ufo_fleet: UfoFleet
 
 var current_wave: int = 0
-## True from a wave's spawn until its last asteroid, fragments included, is gone.
+## True from a wave's spawn until its last asteroid and UFO are destroyed.
 var is_wave_active: bool = false
+
+var _asteroids_cleared: bool = false
 
 @onready var _timers: TimerScheduler = $Timers
 
 
 func _ready() -> void:
 	asteroid_field.field_cleared.connect(_on_field_cleared)
+	ufo_fleet.wave_ufos_cleared.connect(_try_complete_wave)
 	GameManager.game_over.connect(_on_game_over)
 
 
@@ -55,13 +60,25 @@ func _tick_countdown(seconds_left: int) -> void:
 func _start_wave() -> void:
 	asteroid_field.speed_multiplier = settings.get_speed_multiplier(current_wave)
 	asteroid_field.spawn_wave(settings.get_composition(current_wave))
+	ufo_fleet.start_wave(current_wave)
+	_asteroids_cleared = false
 	is_wave_active = true
 	GameManager.end_wave_transition()
 	wave_started.emit(current_wave)
 
 
 func _on_field_cleared() -> void:
-	if not is_wave_active or not GameManager.begin_wave_transition():
+	if not is_wave_active:
+		return
+	_asteroids_cleared = true
+	ufo_fleet.hurry()
+	_try_complete_wave()
+
+
+func _try_complete_wave() -> void:
+	if not is_wave_active or not _asteroids_cleared or ufo_fleet.has_remaining_ufos():
+		return
+	if not GameManager.begin_wave_transition():
 		return
 	is_wave_active = false
 	wave_completed.emit(current_wave, settings.get_completion_bonus(current_wave))
@@ -70,4 +87,5 @@ func _on_field_cleared() -> void:
 
 func _on_game_over(_final_score: int) -> void:
 	_timers.cancel_all()
+	ufo_fleet.halt()
 	is_wave_active = false

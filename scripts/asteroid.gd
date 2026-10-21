@@ -12,9 +12,6 @@ signal damaged(asteroid: Asteroid, hit_points_left: int)
 ## Emitted once when shot apart, before it despawns.
 signal destroyed(asteroid: Asteroid)
 
-## Members of this group hurt the player on contact.
-const HAZARD_GROUP: StringName = &"player_hazards"
-
 var size: Size = Size.LARGE
 var size_settings: AsteroidSizeSettings
 var variant: Variant = Variant.STANDARD

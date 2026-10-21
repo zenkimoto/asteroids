@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/projectile.tscn" id="5_projectile"]
 
 [node name="Player" type="Area2D"]
-collision_mask = 2
+collision_mask = 26
 monitorable = false
 script = ExtResource("1_player")
 settings = ExtResource("2_settings")

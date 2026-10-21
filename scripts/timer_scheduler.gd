@@ -15,6 +15,15 @@ func schedule(delay: float, callback: Callable) -> Timer:
 	return timer
 
 
+## Cancels one pending timer returned by schedule(); no effect if it already fired.
+func cancel(timer: Timer) -> void:
+	if timer == null or not is_instance_valid(timer) or timer.get_parent() != self:
+		return
+	timer.stop()
+	remove_child(timer)
+	timer.queue_free()
+
+
 func cancel_all() -> void:
 	for timer in get_children():
 		timer.stop()

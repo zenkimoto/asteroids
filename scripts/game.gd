@@ -7,6 +7,8 @@ extends Node2D
 @onready var player: Player = $Player
 @onready var asteroid_field: AsteroidField = $AsteroidField
 @onready var projectiles: EntityContainer = $Projectiles
+@onready var ufo_fleet: UfoFleet = $UfoFleet
+@onready var enemy_projectiles: EntityContainer = $EnemyProjectiles
 @onready var timers: TimerScheduler = $Timers
 @onready var wave_manager: WaveManager = $WaveManager
 @onready var wave_announcer: WaveAnnouncer = $WaveAnnouncer
@@ -24,6 +26,7 @@ func _ready() -> void:
 	# Every connection is made once here; restarts reuse them.
 	player.died.connect(_on_player_died)
 	asteroid_field.asteroid_destroyed.connect(ScoreManager.record_asteroid_destroyed)
+	ufo_fleet.ufo_destroyed.connect(ScoreManager.record_ufo_destroyed)
 	wave_manager.countdown_started.connect(hud.set_wave)
 	wave_manager.countdown_ticked.connect(wave_announcer.show_countdown)
 	wave_manager.wave_started.connect(wave_announcer.show_wave_started)
@@ -49,6 +52,7 @@ func _apply_balance(balance: GameBalance) -> void:
 	player.weapon.settings = balance.weapon
 	asteroid_field.settings = balance.asteroids
 	wave_manager.settings = balance.waves
+	ufo_fleet.settings = balance.ufos
 
 
 func _rules() -> GameRules:
@@ -59,6 +63,8 @@ func _rules() -> GameRules:
 func _on_session_started() -> void:
 	timers.cancel_all()
 	projectiles.clear()
+	enemy_projectiles.clear()
+	ufo_fleet.clear()
 	asteroid_field.clear()
 	wave_announcer.hide_now()
 	player.respawn(Playfield.get_center(), _rules().invulnerability_duration)
@@ -84,9 +90,13 @@ func _on_player_died() -> void:
 
 
 func _respawn_player() -> void:
+	var hazards: Array = []
+	hazards.append_array(asteroid_field.get_asteroids())
+	hazards.append_array(ufo_fleet.get_ufos())
+	hazards.append_array(enemy_projectiles.get_live_entities())
 	var at := SpawnUtils.find_clear_point(
 			_rng,
-			asteroid_field.get_asteroids(),
+			hazards,
 			_rules().respawn_clear_radius,
 			Playfield.get_playfield_rect(),
 			Playfield.get_center()

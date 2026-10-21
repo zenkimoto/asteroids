@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ufo.tscn" id="1_ufo"]
+
+[node name="SmallUfo" instance=ExtResource("1_ufo")]
+ufo_type = 1

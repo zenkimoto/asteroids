@@ -8,3 +8,4 @@ extends Resource
 @export var weapon: WeaponSettings
 @export var asteroids: AsteroidSettings
 @export var waves: WaveSettings
+@export var ufos: UfoSettings

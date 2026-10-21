@@ -1,0 +1,72 @@
+[gd_resource type="Resource" script_class="UfoSettings" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/ufo_settings.gd" id="1_ufos"]
+[ext_resource type="Script" path="res://scripts/ufo_type_settings.gd" id="2_type"]
+
+[sub_resource type="Resource" id="Resource_large"]
+script = ExtResource("2_type")
+radius = 42.0
+hit_points = 3
+score = 200
+speed = 110.0
+vertical_speed = 70.0
+fire_interval = 2.2
+aim_error_degrees = 22.0
+lead_factor = 0.0
+projectile_speed = 380.0
+projectile_lifetime = 2.2
+hull_color = Color(0.05, 0.12, 0.06, 1)
+outline_color = Color(0.55, 1, 0.35, 1)
+dome_color = Color(0.3, 0.6, 0.3, 0.8)
+attack_color = Color(1, 0.9, 0.3, 1)
+hit_flash_color = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_small"]
+script = ExtResource("2_type")
+radius = 26.0
+hit_points = 2
+score = 500
+speed = 175.0
+vertical_speed = 115.0
+fire_interval = 1.6
+aim_error_degrees = 7.0
+lead_factor = 0.7
+projectile_speed = 460.0
+projectile_lifetime = 2.0
+hull_color = Color(0.1, 0.04, 0.14, 1)
+outline_color = Color(0.8, 0.45, 1, 1)
+dome_color = Color(0.55, 0.3, 0.75, 0.8)
+attack_color = Color(1, 0.9, 0.3, 1)
+hit_flash_color = Color(1, 1, 1, 1)
+
+[resource]
+script = ExtResource("1_ufos")
+large = SubResource("Resource_large")
+small = SubResource("Resource_small")
+large_first_wave = 2
+small_first_wave = 4
+first_wave_ufos = 1
+waves_per_extra_ufo = 2
+max_ufos_per_wave = 5
+small_share_start = 0.5
+small_share_per_wave = 0.05
+small_share_max = 0.6
+max_concurrent_ufos = 2
+first_spawn_delay = 6.0
+spawn_interval = 12.0
+spawn_interval_decrease_per_wave = 0.8
+min_spawn_interval = 5.0
+hurry_delay = 1.5
+spawn_safe_radius = 350.0
+edge_margin = 90.0
+drift_change_min = 0.8
+drift_change_max = 2.2
+attack_windup = 0.3
+speed_increase_per_wave = 0.05
+max_speed_multiplier = 1.5
+fire_rate_increase_per_wave = 0.08
+max_fire_rate_multiplier = 1.8
+accuracy_increase_per_wave = 0.06
+min_aim_error_multiplier = 0.4
+projectile_speed_increase_per_wave = 0.04
+max_projectile_speed_multiplier = 1.4

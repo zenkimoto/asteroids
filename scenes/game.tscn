@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/playfield.gd" id="3_playfield"]
@@ -16,6 +16,10 @@
 [ext_resource type="Script" path="res://scripts/wave_manager.gd" id="15_waves"]
 [ext_resource type="Resource" path="res://resources/game_balance/waves.tres" id="16_wave_settings"]
 [ext_resource type="PackedScene" path="res://scenes/wave_announcer.tscn" id="17_announcer"]
+[ext_resource type="Script" path="res://scripts/ufo_fleet.gd" id="18_fleet"]
+[ext_resource type="Resource" path="res://resources/game_balance/ufos.tres" id="19_ufo_settings"]
+[ext_resource type="PackedScene" path="res://scenes/large_ufo.tscn" id="20_large_ufo"]
+[ext_resource type="PackedScene" path="res://scenes/small_ufo.tscn" id="21_small_ufo"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_game")
@@ -29,7 +33,21 @@ settings = ExtResource("5_asteroid_settings")
 asteroid_scene = ExtResource("6_asteroid")
 player = NodePath("../Player")
 
+[node name="UfoFleet" type="Node2D" parent="." node_paths=PackedStringArray("player", "projectiles")]
+script = ExtResource("18_fleet")
+settings = ExtResource("19_ufo_settings")
+large_ufo_scene = ExtResource("20_large_ufo")
+small_ufo_scene = ExtResource("21_small_ufo")
+player = NodePath("../Player")
+projectiles = NodePath("../EnemyProjectiles")
+
+[node name="Timers" type="Node" parent="UfoFleet"]
+script = ExtResource("13_timers")
+
 [node name="Projectiles" type="Node2D" parent="."]
+script = ExtResource("12_container")
+
+[node name="EnemyProjectiles" type="Node2D" parent="."]
 script = ExtResource("12_container")
 
 [node name="Player" parent="." instance=ExtResource("7_player")]
@@ -38,10 +56,11 @@ position = Vector2(960, 540)
 [node name="Timers" type="Node" parent="."]
 script = ExtResource("13_timers")
 
-[node name="WaveManager" type="Node" parent="." node_paths=PackedStringArray("asteroid_field")]
+[node name="WaveManager" type="Node" parent="." node_paths=PackedStringArray("asteroid_field", "ufo_fleet")]
 script = ExtResource("15_waves")
 settings = ExtResource("16_wave_settings")
 asteroid_field = NodePath("../AsteroidField")
+ufo_fleet = NodePath("../UfoFleet")
 
 [node name="Timers" type="Node" parent="WaveManager"]
 script = ExtResource("13_timers")

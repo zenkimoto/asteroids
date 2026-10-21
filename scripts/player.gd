@@ -214,7 +214,10 @@ func _check_hazard_contact() -> void:
 	if is_invulnerable():
 		return
 	for area in get_overlapping_areas():
-		if area.is_in_group(Asteroid.HAZARD_GROUP):
+		if area.is_in_group(GameEntity.HAZARD_GROUP):
+			# Shots disappear on impact; asteroids and UFOs carry on.
+			if area.has_method(&"on_player_hit"):
+				area.on_player_hit()
 			die()
 			return
 

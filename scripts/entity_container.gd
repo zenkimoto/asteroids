@@ -1,7 +1,8 @@
 class_name EntityContainer
 extends Node2D
-## Parent node for spawned gameplay objects. It creates them, counts the live ones
-## and frees them all at once when a session is cleaned up.
+## Parent node for spawned gameplay objects (GameEntity children). It creates
+## them, counts the live ones and frees them all at once when a session is
+## cleaned up. Other children, such as a TimerScheduler, are left alone.
 
 signal entity_added(entity: Node)
 signal entity_removed(entity: Node)
@@ -38,12 +39,11 @@ func get_live_count() -> int:
 ## Removes and frees every entity immediately, without despawn effects.
 func clear() -> void:
 	for child in get_children():
-		remove_child(child)
-		child.queue_free()
+		if child is GameEntity:
+			remove_child(child)
+			child.queue_free()
 
 
 static func is_live(node: Node) -> bool:
-	if node.is_queued_for_deletion():
-		return false
-	var entity := node as WrappingEntity
-	return entity == null or not entity.is_despawned
+	var entity := node as GameEntity
+	return entity != null and not entity.is_despawned and not entity.is_queued_for_deletion()

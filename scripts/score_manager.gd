@@ -6,6 +6,7 @@ signal score_changed(score: int)
 
 var score: int = 0
 var asteroids_destroyed: int = 0
+var ufos_destroyed: int = 0
 var waves_completed: int = 0
 
 
@@ -16,6 +17,7 @@ func _ready() -> void:
 func reset() -> void:
 	score = 0
 	asteroids_destroyed = 0
+	ufos_destroyed = 0
 	waves_completed = 0
 	score_changed.emit(score)
 
@@ -33,6 +35,13 @@ func record_asteroid_destroyed(asteroid: Asteroid) -> void:
 		return
 	asteroids_destroyed += 1
 	add_points(asteroid.get_score_value())
+
+
+func record_ufo_destroyed(ufo: Ufo) -> void:
+	if not GameManager.is_gameplay_active():
+		return
+	ufos_destroyed += 1
+	add_points(ufo.get_score_value())
 
 
 func record_wave_completed(wave: int, bonus: int) -> void:
