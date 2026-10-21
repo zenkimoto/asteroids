@@ -1,7 +1,6 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
-[ext_resource type="Resource" path="res://resources/game_balance/game_rules.tres" id="2_rules"]
 [ext_resource type="Script" path="res://scripts/playfield.gd" id="3_playfield"]
 [ext_resource type="Script" path="res://scripts/asteroid_field.gd" id="4_field"]
 [ext_resource type="Resource" path="res://resources/game_balance/asteroids.tres" id="5_asteroid_settings"]
@@ -11,10 +10,12 @@
 [ext_resource type="PackedScene" path="res://scenes/game_over_screen.tscn" id="9_game_over"]
 [ext_resource type="PackedScene" path="res://scenes/input_monitor.tscn" id="10_monitor"]
 [ext_resource type="PackedScene" path="res://scenes/movement_debug.tscn" id="11_debug"]
+[ext_resource type="Script" path="res://scripts/entity_container.gd" id="12_container"]
+[ext_resource type="Script" path="res://scripts/timer_scheduler.gd" id="13_timers"]
+[ext_resource type="PackedScene" path="res://scenes/pause_overlay.tscn" id="14_pause"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_game")
-rules = ExtResource("2_rules")
 
 [node name="Playfield" type="Node2D" parent="."]
 script = ExtResource("3_playfield")
@@ -26,11 +27,17 @@ asteroid_scene = ExtResource("6_asteroid")
 player = NodePath("../Player")
 
 [node name="Projectiles" type="Node2D" parent="."]
+script = ExtResource("12_container")
 
 [node name="Player" parent="." instance=ExtResource("7_player")]
 position = Vector2(960, 540)
 
+[node name="Timers" type="Node" parent="."]
+script = ExtResource("13_timers")
+
 [node name="Hud" parent="." instance=ExtResource("8_hud")]
+
+[node name="PauseOverlay" parent="." instance=ExtResource("14_pause")]
 
 [node name="GameOverScreen" parent="." instance=ExtResource("9_game_over")]
 

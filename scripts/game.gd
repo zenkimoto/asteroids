@@ -1,103 +1,95 @@
 class_name Game
 extends Node2D
-## Runs one play session: score, lives, respawning, field refills and game over.
-
-signal score_changed(score: int)
-signal lives_changed(lives: int)
-signal game_over(final_score: int)
-
-@export var rules: GameRules
-
-var score: int = 0
-var lives: int = 0
-var is_game_over: bool = false
+## Gameplay scene. Applies the balance configuration, wires gameplay objects to
+## GameManager and ScoreManager, and builds or clears the world for each session.
+## It holds no score or game state of its own.
 
 @onready var player: Player = $Player
 @onready var asteroid_field: AsteroidField = $AsteroidField
+@onready var projectiles: EntityContainer = $Projectiles
+@onready var timers: TimerScheduler = $Timers
 @onready var hud: Hud = $Hud
+@onready var pause_overlay: PauseOverlay = $PauseOverlay
 @onready var game_over_screen: GameOverScreen = $GameOverScreen
+
+var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
-	player.weapon.projectile_parent = $Projectiles
-	score_changed.connect(hud.set_score)
-	lives_changed.connect(hud.set_lives)
+	_rng.randomize()
+	_apply_balance(GameManager.balance)
+	player.weapon.projectile_parent = projectiles
+	# Every connection is made once here; restarts reuse them.
 	player.died.connect(_on_player_died)
-	asteroid_field.asteroid_destroyed.connect(_on_asteroid_destroyed)
+	asteroid_field.asteroid_destroyed.connect(ScoreManager.record_asteroid_destroyed)
 	asteroid_field.field_cleared.connect(_on_field_cleared)
-	game_over_screen.restart_requested.connect(restart)
-	start_session()
+	ScoreManager.score_changed.connect(hud.set_score)
+	GameManager.lives_changed.connect(hud.set_lives)
+	GameManager.session_started.connect(_on_session_started)
+	GameManager.state_changed.connect(_on_state_changed)
+	pause_overlay.resume_requested.connect(GameManager.resume)
+	pause_overlay.restart_requested.connect(GameManager.start_session)
+	game_over_screen.restart_requested.connect(GameManager.start_session)
+	GameManager.start_session()
 
 
-func start_session() -> void:
-	score = 0
-	lives = rules.starting_lives
-	is_game_over = false
-	score_changed.emit(score)
-	lives_changed.emit(lives)
-	player.controls_enabled = true
-	player.respawn(Playfield.get_center(), rules.invulnerability_duration)
-	asteroid_field.spawn_field(rules.asteroids_per_field)
+func _exit_tree() -> void:
+	if is_instance_valid(GameManager):
+		GameManager.end_session()
 
 
-## Reloads the scene, which resets every session value and removes all objects.
-func restart() -> void:
-	get_tree().reload_current_scene()
+func _apply_balance(balance: GameBalance) -> void:
+	player.settings = balance.player_movement
+	player.weapon.settings = balance.weapon
+	asteroid_field.settings = balance.asteroids
 
 
-func add_score(points: int) -> void:
-	if is_game_over:
-		return
-	score += points
-	score_changed.emit(score)
+func _rules() -> GameRules:
+	return GameManager.balance.rules
 
 
-func _on_asteroid_destroyed(asteroid: Asteroid) -> void:
-	add_score(asteroid.size_settings.score)
+## Clears everything left from the previous session, then builds the new one.
+func _on_session_started() -> void:
+	timers.cancel_all()
+	projectiles.clear()
+	asteroid_field.clear()
+	player.respawn(Playfield.get_center(), _rules().invulnerability_duration)
+	asteroid_field.spawn_field(_rules().asteroids_per_field)
+
+
+func _on_state_changed(_previous: int, current: int) -> void:
+	player.controls_enabled = current == GameManager.State.PLAYING \
+			or current == GameManager.State.WAVE_TRANSITION
+	pause_overlay.visible = current == GameManager.State.PAUSED
+	if current == GameManager.State.PAUSED:
+		pause_overlay.focus_default()
+	if current == GameManager.State.GAME_OVER:
+		game_over_screen.show_results(ScoreManager.score)
+	else:
+		game_over_screen.hide_results()
 
 
 func _on_player_died() -> void:
-	lives -= 1
-	lives_changed.emit(lives)
-	if lives <= 0:
-		is_game_over = true
-		# Timers connected to methods are dropped automatically if the game is freed.
-		get_tree().create_timer(rules.game_over_delay).timeout.connect(_show_game_over)
-	else:
-		get_tree().create_timer(rules.respawn_delay).timeout.connect(_respawn_player)
+	if GameManager.register_player_death():
+		timers.schedule(_rules().respawn_delay, _respawn_player)
 
 
 func _respawn_player() -> void:
-	player.respawn(_find_respawn_point(), rules.invulnerability_duration)
-
-
-## The center if it is clear of asteroids, otherwise the clearest random spot.
-func _find_respawn_point() -> Vector2:
-	var center := Playfield.get_center()
-	if asteroid_field.is_area_clear(center, rules.respawn_clear_radius):
-		return center
-	var best := center
-	for i in 40:
-		var candidate := asteroid_field.find_clear_position(center, 0.0, 1)
-		if asteroid_field.is_area_clear(candidate, rules.respawn_clear_radius):
-			return candidate
-		best = candidate
-	# Nowhere is fully clear; invulnerability covers the landing.
-	return best
-
-
-func _show_game_over() -> void:
-	player.controls_enabled = false
-	game_over.emit(score)
-	game_over_screen.show_results(score)
+	var at := SpawnUtils.find_clear_point(
+			_rng,
+			asteroid_field.get_asteroids(),
+			_rules().respawn_clear_radius,
+			Playfield.get_playfield_rect(),
+			Playfield.get_center()
+	)
+	player.respawn(at, _rules().invulnerability_duration)
 
 
 func _on_field_cleared() -> void:
-	if is_game_over:
-		return
-	get_tree().create_timer(rules.field_refill_delay).timeout.connect(_refill_field)
+	if GameManager.begin_wave_transition():
+		timers.schedule(_rules().field_refill_delay, _refill_field)
 
 
 func _refill_field() -> void:
-	if not is_game_over:
-		asteroid_field.spawn_field(rules.asteroids_per_field)
+	asteroid_field.spawn_field(_rules().asteroids_per_field)
+	GameManager.end_wave_transition()

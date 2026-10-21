@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="GameBalance" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/game_balance.gd" id="1_balance"]
+[ext_resource type="Resource" path="res://resources/game_balance/game_rules.tres" id="2_rules"]
+[ext_resource type="Resource" path="res://resources/game_balance/player_movement.tres" id="3_movement"]
+[ext_resource type="Resource" path="res://resources/game_balance/weapon.tres" id="4_weapon"]
+[ext_resource type="Resource" path="res://resources/game_balance/asteroids.tres" id="5_asteroids"]
+
+[resource]
+script = ExtResource("1_balance")
+rules = ExtResource("2_rules")
+player_movement = ExtResource("3_movement")
+weapon = ExtResource("4_weapon")
+asteroids = ExtResource("5_asteroids")

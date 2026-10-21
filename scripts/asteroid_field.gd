@@ -1,5 +1,5 @@
 class_name AsteroidField
-extends Node2D
+extends EntityContainer
 ## Spawns asteroids, splits them when destroyed and reports when none are left.
 
 signal asteroid_destroyed(asteroid: Asteroid)
@@ -13,77 +13,58 @@ signal field_cleared
 var _rng := RandomNumberGenerator.new()
 ## Fragments queued for creation at the end of the frame; they count as alive.
 var _pending_fragments: int = 0
+## Bumped by clear() so fragments queued before a cleanup are discarded.
+var _generation: int = 0
 
 
 func _ready() -> void:
+	super()
 	_rng.randomize()
 
 
 ## Live asteroids, including fragments about to be created.
 func get_asteroid_count() -> int:
-	var count := _pending_fragments
-	for child in get_children():
-		if child is Asteroid and not child.is_destroyed:
-			count += 1
-	return count
+	return get_live_count() + _pending_fragments
+
+
+func get_asteroids() -> Array[Asteroid]:
+	var asteroids: Array[Asteroid] = []
+	for entity in get_live_entities():
+		asteroids.append(entity as Asteroid)
+	return asteroids
 
 
 ## Spawns `count` large asteroids at random spots away from the player.
 func spawn_field(count: int) -> void:
+	var bounds := Playfield.get_playfield_rect()
+	var size_settings := settings.get_size_settings(Asteroid.Size.LARGE)
 	for i in count:
-		var size_settings := settings.get_size_settings(Asteroid.Size.LARGE)
-		var position_ := find_clear_position(_avoid_point(), settings.spawn_safe_radius)
-		spawn_asteroid(Asteroid.Size.LARGE, position_, _random_velocity(size_settings))
+		var at := SpawnUtils.find_point_away_from(_rng, _avoid_point(), settings.spawn_safe_radius, bounds)
+		spawn_asteroid(Asteroid.Size.LARGE, at, _random_velocity(size_settings))
 
 
 func spawn_asteroid(size: Asteroid.Size, at: Vector2, velocity: Vector2) -> Asteroid:
-	var asteroid := asteroid_scene.instantiate() as Asteroid
-	asteroid.setup(size, settings, at, velocity, _rng)
+	var asteroid := spawn(asteroid_scene, func(node: Node) -> void:
+		(node as Asteroid).setup(size, settings, at, velocity, _rng)
+	) as Asteroid
 	asteroid.destroyed.connect(_on_asteroid_destroyed)
-	add_child(asteroid)
 	return asteroid
 
 
-## A random position at least `clearance` away (across screen wrap) from `avoid`.
-## Falls back to the best candidate found if no fully clear spot exists.
-func find_clear_position(avoid: Vector2, clearance: float, attempts: int = 30) -> Vector2:
-	var bounds := Playfield.get_playfield_rect()
-	var best := Vector2.ZERO
-	var best_distance := -1.0
-	for i in attempts:
-		var candidate := Vector2(_rng.randf() * bounds.size.x, _rng.randf() * bounds.size.y)
-		var distance := ScreenWrap.wrapped_distance(candidate, avoid, bounds)
-		if distance >= clearance:
-			return candidate
-		if distance > best_distance:
-			best_distance = distance
-			best = candidate
-	return best
-
-
-## True when no live asteroid's edge is within `clearance` of `point`.
-func is_area_clear(point: Vector2, clearance: float) -> bool:
-	var bounds := Playfield.get_playfield_rect()
-	for child in get_children():
-		var asteroid := child as Asteroid
-		if asteroid and not asteroid.is_destroyed:
-			if ScreenWrap.wrapped_distance(point, asteroid.position, bounds) < clearance + asteroid.get_radius():
-				return false
-	return true
+func clear() -> void:
+	_generation += 1
+	_pending_fragments = 0
+	super()
 
 
 func _on_asteroid_destroyed(asteroid: Asteroid) -> void:
 	asteroid_destroyed.emit(asteroid)
 	if asteroid.size != Asteroid.Size.SMALL:
 		_spawn_fragments(asteroid)
-	# The destroyed asteroid is already flagged, so it is not counted.
-	if get_asteroid_count() == 0:
+	# `destroyed` fires before the asteroid despawns, so it may still be counted.
+	var remaining := get_asteroid_count() - (1 if is_live(asteroid) else 0)
+	if remaining == 0:
 		field_cleared.emit()
-
-
-func _spawn_pending_fragment(size: Asteroid.Size, at: Vector2, velocity: Vector2) -> void:
-	_pending_fragments -= 1
-	spawn_asteroid(size, at, velocity)
 
 
 func _spawn_fragments(parent: Asteroid) -> void:
@@ -101,7 +82,14 @@ func _spawn_fragments(parent: Asteroid) -> void:
 			velocity = (at - player_position).normalized() * velocity.length()
 		# Spawned deferred: this runs inside a physics callback.
 		_pending_fragments += 1
-		call_deferred(&"_spawn_pending_fragment", child_size, at, velocity)
+		_spawn_pending_fragment.call_deferred(_generation, child_size, at, velocity)
+
+
+func _spawn_pending_fragment(generation: int, size: Asteroid.Size, at: Vector2, velocity: Vector2) -> void:
+	if generation != _generation:
+		return
+	_pending_fragments -= 1
+	spawn_asteroid(size, at, velocity)
 
 
 func _random_velocity(size_settings: AsteroidSizeSettings) -> Vector2:

@@ -1,11 +1,14 @@
 class_name Asteroid
-extends Area2D
+extends WrappingEntity
 ## A drifting, spinning asteroid with a randomly generated outline. Call setup()
 ## before adding it to the tree. It reports its destruction through `destroyed`;
 ## the AsteroidField decides what to spawn next.
 
 enum Size { LARGE, MEDIUM, SMALL }
 
+## Emitted when a hit removes hit points but doesn't destroy it.
+signal damaged(asteroid: Asteroid, hit_points_left: int)
+## Emitted once when shot apart, before it despawns.
 signal destroyed(asteroid: Asteroid)
 
 ## Members of this group hurt the player on contact.
@@ -13,10 +16,8 @@ const HAZARD_GROUP: StringName = &"player_hazards"
 
 var size: Size = Size.LARGE
 var size_settings: AsteroidSizeSettings
-var velocity: Vector2 = Vector2.ZERO
 var spin: float = 0.0
 var hit_points: int = 1
-var is_destroyed: bool = false
 
 var _outline: PackedVector2Array = PackedVector2Array()
 
@@ -36,6 +37,7 @@ func setup(
 	size_settings = settings.get_size_settings(p_size)
 	position = p_position
 	velocity = p_velocity
+	wrap_margin = size_settings.radius
 	hit_points = size_settings.hit_points
 	spin = rng.randf_range(settings.min_spin, settings.max_spin) * (1.0 if rng.randf() < 0.5 else -1.0)
 	rotation = rng.randf() * TAU
@@ -49,10 +51,8 @@ func _ready() -> void:
 	_collision.polygon = _outline
 
 
-func _physics_process(delta: float) -> void:
-	position += velocity * delta
+func _entity_physics_process(delta: float) -> void:
 	rotation += spin * delta
-	position = ScreenWrap.wrap_position(position, Playfield.get_playfield_rect(), size_settings.radius)
 
 
 func get_radius() -> float:
@@ -62,21 +62,17 @@ func get_radius() -> float:
 ## Applies damage. Returns false if the asteroid was already destroyed, so a
 ## projectile is never spent on a dying asteroid and points are awarded once.
 func take_hit(damage: int = 1) -> bool:
-	if is_destroyed:
+	if is_despawned:
 		return false
 	hit_points -= damage
-	if hit_points <= 0:
-		_destroy()
-	return true
-
-
-func _destroy() -> void:
-	is_destroyed = true
+	if hit_points > 0:
+		damaged.emit(self, hit_points)
+		return true
+	# Stop being a hazard this frame, not when the node is finally freed.
 	remove_from_group(HAZARD_GROUP)
-	# Stop interacting immediately; physics state can only change deferred.
-	set_deferred("monitorable", false)
 	destroyed.emit(self)
-	queue_free()
+	despawn()
+	return true
 
 
 ## Points around a circle with jittered radii and angles, giving a lumpy rock.

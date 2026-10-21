@@ -1,6 +1,6 @@
 class_name Hud
 extends CanvasLayer
-## In-game score and lives display.
+## In-game score and lives display. Values are pushed in by the game scene.
 
 @onready var _score_label: Label = %ScoreLabel
 @onready var _lives_label: Label = %LivesLabel

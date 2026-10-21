@@ -1,19 +1,21 @@
 class_name Projectile
-extends Area2D
-## Player laser bolt. Flies straight, wraps around the screen and disappears after
+extends WrappingEntity
+## Player laser bolt. Flies straight, wraps around the screen and despawns after
 ## its lifetime or on its first successful hit.
+
+signal hit(target: Node2D)
+signal expired
 
 ## Small wrap margin so bolts reappear promptly on the other side.
 const WRAP_MARGIN: float = 8.0
 
-var velocity: Vector2 = Vector2.ZERO
 var damage: int = 1
 
 var _time_left: float = 0.0
-var _spent: bool = false
 
 
 func _ready() -> void:
+	wrap_margin = WRAP_MARGIN
 	area_entered.connect(_on_area_entered)
 
 
@@ -26,20 +28,17 @@ func launch(start: Vector2, direction: Vector2, inherited_velocity: Vector2, set
 	_time_left = settings.projectile_lifetime
 
 
-func _physics_process(delta: float) -> void:
+func _entity_physics_process(delta: float) -> void:
 	_time_left -= delta
 	if _time_left <= 0.0:
-		queue_free()
-		return
-	position += velocity * delta
-	position = ScreenWrap.wrap_position(position, Playfield.get_playfield_rect(), WRAP_MARGIN)
+		expired.emit()
+		despawn()
 
 
 func _on_area_entered(area: Area2D) -> void:
-	# A bolt can touch several asteroids in one step; it only ever hits one.
-	if _spent or not area.has_method(&"take_hit"):
+	# A bolt can touch several targets in one step; it only ever hits one.
+	if is_despawned or not area.has_method(&"take_hit"):
 		return
 	if area.take_hit(damage):
-		_spent = true
-		set_deferred("monitoring", false)
-		queue_free()
+		hit.emit(area)
+		despawn()
