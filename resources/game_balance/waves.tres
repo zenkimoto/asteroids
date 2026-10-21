@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="WaveSettings" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/wave_settings.gd" id="1_waves"]
+
+[resource]
+script = ExtResource("1_waves")
+first_wave_asteroids = 4
+asteroids_added_per_wave = 1
+max_wave_asteroids = 12
+speed_increase_per_wave = 0.06
+max_speed_multiplier = 1.6
+fast_first_wave = 3
+fast_share_start = 0.2
+fast_share_per_wave = 0.05
+fast_share_max = 0.4
+armored_first_wave = 5
+armored_share_start = 0.15
+armored_share_per_wave = 0.04
+armored_share_max = 0.3
+countdown_seconds = 3
+wave_complete_delay = 2.0
+completion_bonus_per_wave = 100

@@ -16,7 +16,7 @@ const BALANCE_PATH: String = "res://resources/game_balance/game_balance.tres"
 ## Allowed transitions; anything else is refused and reported as an error.
 const TRANSITIONS: Dictionary = {
 	State.MAIN_MENU: [State.STARTING],
-	State.STARTING: [State.PLAYING, State.MAIN_MENU],
+	State.STARTING: [State.WAVE_TRANSITION, State.PLAYING, State.MAIN_MENU],
 	State.PLAYING: [State.WAVE_TRANSITION, State.PAUSED, State.GAME_OVER, State.MAIN_MENU],
 	State.WAVE_TRANSITION: [State.PLAYING, State.PAUSED, State.GAME_OVER, State.MAIN_MENU],
 	State.PAUSED: [State.PLAYING, State.WAVE_TRANSITION, State.STARTING, State.MAIN_MENU],
@@ -67,7 +67,8 @@ func can_pause() -> bool:
 	return is_gameplay_active() and not _out_of_lives
 
 
-## Starts a fresh session from the menu, the pause screen or Game Over.
+## Starts a fresh session from the menu, the pause screen or Game Over. The
+## session opens in WAVE_TRANSITION: the first wave's countdown is running.
 func start_session() -> bool:
 	if not _change_state(State.STARTING):
 		return false
@@ -77,7 +78,7 @@ func start_session() -> bool:
 	lives = balance.rules.starting_lives
 	lives_changed.emit(lives)
 	session_started.emit()
-	return _change_state(State.PLAYING)
+	return _change_state(State.WAVE_TRANSITION)
 
 
 ## Leaves gameplay entirely (called when the gameplay scene is removed).
@@ -103,13 +104,14 @@ func resume() -> void:
 	_change_state(_state_before_pause)
 
 
-## Called when the field is cleared. Returns false if a transition isn't allowed now.
+## Called when a wave is cleared. Returns false if a transition isn't allowed now.
 func begin_wave_transition() -> bool:
 	if state != State.PLAYING or _out_of_lives:
 		return false
 	return _change_state(State.WAVE_TRANSITION)
 
 
+## Called when the next wave spawns.
 func end_wave_transition() -> void:
 	if state == State.WAVE_TRANSITION:
 		_change_state(State.PLAYING)

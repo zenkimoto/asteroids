@@ -8,6 +8,8 @@ extends Node2D
 @onready var asteroid_field: AsteroidField = $AsteroidField
 @onready var projectiles: EntityContainer = $Projectiles
 @onready var timers: TimerScheduler = $Timers
+@onready var wave_manager: WaveManager = $WaveManager
+@onready var wave_announcer: WaveAnnouncer = $WaveAnnouncer
 @onready var hud: Hud = $Hud
 @onready var pause_overlay: PauseOverlay = $PauseOverlay
 @onready var game_over_screen: GameOverScreen = $GameOverScreen
@@ -22,7 +24,11 @@ func _ready() -> void:
 	# Every connection is made once here; restarts reuse them.
 	player.died.connect(_on_player_died)
 	asteroid_field.asteroid_destroyed.connect(ScoreManager.record_asteroid_destroyed)
-	asteroid_field.field_cleared.connect(_on_field_cleared)
+	wave_manager.countdown_started.connect(hud.set_wave)
+	wave_manager.countdown_ticked.connect(wave_announcer.show_countdown)
+	wave_manager.wave_started.connect(wave_announcer.show_wave_started)
+	wave_manager.wave_completed.connect(wave_announcer.show_wave_complete)
+	wave_manager.wave_completed.connect(ScoreManager.record_wave_completed)
 	ScoreManager.score_changed.connect(hud.set_score)
 	GameManager.lives_changed.connect(hud.set_lives)
 	GameManager.session_started.connect(_on_session_started)
@@ -42,19 +48,21 @@ func _apply_balance(balance: GameBalance) -> void:
 	player.settings = balance.player_movement
 	player.weapon.settings = balance.weapon
 	asteroid_field.settings = balance.asteroids
+	wave_manager.settings = balance.waves
 
 
 func _rules() -> GameRules:
 	return GameManager.balance.rules
 
 
-## Clears everything left from the previous session, then builds the new one.
+## Clears everything left from the previous session, then starts Wave 1's countdown.
 func _on_session_started() -> void:
 	timers.cancel_all()
 	projectiles.clear()
 	asteroid_field.clear()
+	wave_announcer.hide_now()
 	player.respawn(Playfield.get_center(), _rules().invulnerability_duration)
-	asteroid_field.spawn_field(_rules().asteroids_per_field)
+	wave_manager.start()
 
 
 func _on_state_changed(_previous: int, current: int) -> void:
@@ -64,6 +72,7 @@ func _on_state_changed(_previous: int, current: int) -> void:
 	if current == GameManager.State.PAUSED:
 		pause_overlay.focus_default()
 	if current == GameManager.State.GAME_OVER:
+		wave_announcer.hide_now()
 		game_over_screen.show_results(ScoreManager.score)
 	else:
 		game_over_screen.hide_results()
@@ -83,13 +92,3 @@ func _respawn_player() -> void:
 			Playfield.get_center()
 	)
 	player.respawn(at, _rules().invulnerability_duration)
-
-
-func _on_field_cleared() -> void:
-	if GameManager.begin_wave_transition():
-		timers.schedule(_rules().field_refill_delay, _refill_field)
-
-
-func _refill_field() -> void:
-	asteroid_field.spawn_field(_rules().asteroids_per_field)
-	GameManager.end_wave_transition()

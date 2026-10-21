@@ -7,3 +7,4 @@ extends Resource
 @export var player_movement: PlayerMovementSettings
 @export var weapon: WeaponSettings
 @export var asteroids: AsteroidSettings
+@export var waves: WaveSettings

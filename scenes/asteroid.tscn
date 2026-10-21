@@ -19,3 +19,11 @@ width = 2.5
 default_color = Color(1, 0.55, 0.85, 1)
 joint_mode = 2
 antialiased = true
+
+[node name="Plating" type="Line2D" parent="."]
+visible = false
+closed = true
+width = 2.0
+default_color = Color(0.85, 0.9, 1, 1)
+joint_mode = 2
+antialiased = true

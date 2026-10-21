@@ -8,6 +8,4 @@ starting_lives = 3
 respawn_delay = 1.5
 invulnerability_duration = 2.0
 respawn_clear_radius = 220.0
-asteroids_per_field = 4
-field_refill_delay = 2.0
 game_over_delay = 1.0

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scripts/playfield.gd" id="3_playfield"]
@@ -13,6 +13,9 @@
 [ext_resource type="Script" path="res://scripts/entity_container.gd" id="12_container"]
 [ext_resource type="Script" path="res://scripts/timer_scheduler.gd" id="13_timers"]
 [ext_resource type="PackedScene" path="res://scenes/pause_overlay.tscn" id="14_pause"]
+[ext_resource type="Script" path="res://scripts/wave_manager.gd" id="15_waves"]
+[ext_resource type="Resource" path="res://resources/game_balance/waves.tres" id="16_wave_settings"]
+[ext_resource type="PackedScene" path="res://scenes/wave_announcer.tscn" id="17_announcer"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_game")
@@ -35,7 +38,17 @@ position = Vector2(960, 540)
 [node name="Timers" type="Node" parent="."]
 script = ExtResource("13_timers")
 
+[node name="WaveManager" type="Node" parent="." node_paths=PackedStringArray("asteroid_field")]
+script = ExtResource("15_waves")
+settings = ExtResource("16_wave_settings")
+asteroid_field = NodePath("../AsteroidField")
+
+[node name="Timers" type="Node" parent="WaveManager"]
+script = ExtResource("13_timers")
+
 [node name="Hud" parent="." instance=ExtResource("8_hud")]
+
+[node name="WaveAnnouncer" parent="." instance=ExtResource("17_announcer")]
 
 [node name="PauseOverlay" parent="." instance=ExtResource("14_pause")]
 

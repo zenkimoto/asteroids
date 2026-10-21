@@ -7,24 +7,47 @@ static func random_point(rng: RandomNumberGenerator, bounds: Rect2) -> Vector2:
 	return bounds.position + Vector2(rng.randf() * bounds.size.x, rng.randf() * bounds.size.y)
 
 
-## A random point at least `clearance` away from `avoid` (measured across the
-## screen wrap). If none is found in `attempts` tries, the farthest candidate.
-static func find_point_away_from(
+## Shortest wrapped distance from `point` to any of `points` (INF if empty).
+static func nearest_distance(point: Vector2, points: PackedVector2Array, bounds: Rect2) -> float:
+	var nearest := INF
+	for other in points:
+		nearest = minf(nearest, ScreenWrap.wrapped_distance(point, other, bounds))
+	return nearest
+
+
+## Shortest vector from `from` to `to` when the bounds wrap around.
+static func wrapped_offset(from: Vector2, to: Vector2, bounds: Rect2) -> Vector2:
+	var delta := to - from
+	if absf(delta.x) > bounds.size.x * 0.5:
+		delta.x -= signf(delta.x) * bounds.size.x
+	if absf(delta.y) > bounds.size.y * 0.5:
+		delta.y -= signf(delta.y) * bounds.size.y
+	return delta
+
+
+## A random point at least `safe_radius` from every point in `avoid` and with
+## `spacing` clear around it from `entities`. If none is found in `attempts`
+## tries, the best candidate, ranking distance from `avoid` above spacing.
+static func find_spawn_point(
 		rng: RandomNumberGenerator,
-		avoid: Vector2,
-		clearance: float,
+		avoid: PackedVector2Array,
+		safe_radius: float,
+		entities: Array,
+		spacing: float,
 		bounds: Rect2,
-		attempts: int = 30
+		attempts: int = 40
 ) -> Vector2:
 	var best := random_point(rng, bounds)
-	var best_distance := -1.0
+	var best_rank := -INF
 	for i in attempts:
 		var candidate := random_point(rng, bounds)
-		var distance := ScreenWrap.wrapped_distance(candidate, avoid, bounds)
-		if distance >= clearance:
+		var distance := nearest_distance(candidate, avoid, bounds)
+		var open := clearance_at(candidate, entities, bounds)
+		if distance >= safe_radius and open >= spacing:
 			return candidate
-		if distance > best_distance:
-			best_distance = distance
+		var rank := minf(distance, safe_radius) * 10000.0 + minf(open, spacing)
+		if rank > best_rank:
+			best_rank = rank
 			best = candidate
 	return best
 
