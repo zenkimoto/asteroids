@@ -1,0 +1,144 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_menu"]
+[ext_resource type="Script" path="res://scripts/menu_background.gd" id="2_background"]
+[ext_resource type="Script" path="res://scripts/entity_container.gd" id="3_container"]
+[ext_resource type="PackedScene" path="res://scenes/asteroid.tscn" id="4_asteroid"]
+[ext_resource type="PackedScene" path="res://scenes/leaderboard.tscn" id="5_leaderboard"]
+[ext_resource type="PackedScene" path="res://scenes/how_to_play.tscn" id="6_how_to_play"]
+[ext_resource type="PackedScene" path="res://scenes/settings_menu.tscn" id="7_settings"]
+
+[node name="MainMenu" type="Node2D"]
+script = ExtResource("1_menu")
+
+[node name="Background" type="Node2D" parent="." node_paths=PackedStringArray("asteroid_container")]
+script = ExtResource("2_background")
+asteroid_scene = ExtResource("4_asteroid")
+asteroid_container = NodePath("../Asteroids")
+
+[node name="Asteroids" type="Node2D" parent="."]
+modulate = Color(1, 1, 1, 0.55)
+script = ExtResource("3_container")
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Menu" type="Control" parent="UI"]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Column" type="VBoxContainer" parent="UI/Menu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="Title" type="Label" parent="UI/Menu/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.35, 0.6, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 150
+text = "ASTEROIDS"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="UI/Menu/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.85, 1)
+theme_override_font_sizes/font_size = 32
+text = "NEON ARCADE"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="UI/Menu/Column"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Buttons" type="VBoxContainer" parent="UI/Menu/Column"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="StartButton" type="Button" parent="UI/Menu/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(380, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 36
+text = "Start Game"
+
+[node name="LeaderboardButton" type="Button" parent="UI/Menu/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(380, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 36
+text = "Leaderboard"
+
+[node name="HowToPlayButton" type="Button" parent="UI/Menu/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(380, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 36
+text = "How to Play"
+
+[node name="SettingsButton" type="Button" parent="UI/Menu/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(380, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 36
+text = "Settings"
+
+[node name="QuitButton" type="Button" parent="UI/Menu/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(380, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 36
+text = "Quit"
+
+[node name="BestLabel" type="Label" parent="UI/Menu/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.3, 1)
+theme_override_font_sizes/font_size = 30
+text = "HIGH SCORE  0"
+horizontal_alignment = 1
+
+[node name="Footer" type="Label" parent="UI/Menu"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -64.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.55, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 22
+text = "Arrow keys or mouse to choose  -  Enter to select  -  Esc to go back"
+horizontal_alignment = 1
+
+[node name="LeaderboardPanel" parent="UI" instance=ExtResource("5_leaderboard")]
+unique_name_in_owner = true
+visible = false
+
+[node name="HowToPlayPanel" parent="UI" instance=ExtResource("6_how_to_play")]
+unique_name_in_owner = true
+visible = false
+
+[node name="SettingsPanel" parent="UI" instance=ExtResource("7_settings")]
+unique_name_in_owner = true
+visible = false

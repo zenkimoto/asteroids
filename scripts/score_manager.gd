@@ -1,6 +1,6 @@
 extends Node
 ## Autoload "ScoreManager": the session's score, combo multiplier, extra-life
-## rewards and kill statistics, kept apart from the player and the scene. It
+## rewards and statistics (kills, highest wave, survival time), kept apart from the player and the scene. It
 ## resets itself when GameManager starts a session.
 ##
 ## Combo: each asteroid or UFO kill within `combo_window` seconds of the previous
@@ -17,6 +17,9 @@ var score: int = 0
 var asteroids_destroyed: int = 0
 var ufos_destroyed: int = 0
 var waves_completed: int = 0
+var highest_wave: int = 0
+## Seconds of active play this session (stops while paused and once out of lives).
+var survival_time: float = 0.0
 var combo_kills: int = 0
 var multiplier: int = 1
 
@@ -30,6 +33,8 @@ func _ready() -> void:
 
 ## Runs only while the tree is unpaused, so the combo window pauses too.
 func _process(delta: float) -> void:
+	if GameManager.is_gameplay_active() and GameManager.lives > 0:
+		survival_time += delta
 	if combo_kills == 0:
 		return
 	_combo_time_left -= delta
@@ -42,6 +47,8 @@ func reset() -> void:
 	asteroids_destroyed = 0
 	ufos_destroyed = 0
 	waves_completed = 0
+	highest_wave = 0
+	survival_time = 0.0
 	_next_extra_life_score = _scoring().extra_life_every
 	reset_combo()
 	score_changed.emit(score)
@@ -84,6 +91,21 @@ func record_ufo_destroyed(ufo: Ufo) -> void:
 		return
 	ufos_destroyed += 1
 	_register_kill(ufo.get_score_value())
+
+
+func record_wave_reached(wave: int) -> void:
+	if GameManager.is_gameplay_active():
+		highest_wave = maxi(highest_wave, wave)
+
+
+func get_summary() -> SessionSummary:
+	var summary := SessionSummary.new()
+	summary.score = score
+	summary.highest_wave = highest_wave
+	summary.asteroids_destroyed = asteroids_destroyed
+	summary.ufos_destroyed = ufos_destroyed
+	summary.survival_time = survival_time
+	return summary
 
 
 func record_wave_completed(wave: int, bonus: int) -> void:

@@ -40,6 +40,7 @@ func _ready() -> void:
 	wave_manager.countdown_started.connect(hud.set_wave)
 	wave_manager.countdown_ticked.connect(wave_announcer.show_countdown)
 	wave_manager.wave_started.connect(wave_announcer.show_wave_started)
+	wave_manager.wave_started.connect(ScoreManager.record_wave_reached)
 	wave_manager.wave_completed.connect(wave_announcer.show_wave_complete)
 	wave_manager.wave_completed.connect(ScoreManager.record_wave_completed)
 	ScoreManager.score_changed.connect(hud.set_score)
@@ -51,7 +52,11 @@ func _ready() -> void:
 	GameManager.state_changed.connect(_on_state_changed)
 	pause_overlay.resume_requested.connect(GameManager.resume)
 	pause_overlay.restart_requested.connect(GameManager.start_session)
+	pause_overlay.main_menu_requested.connect(GameManager.open_main_menu)
+	pause_overlay.quit_requested.connect(GameManager.quit_game)
 	game_over_screen.restart_requested.connect(GameManager.start_session)
+	game_over_screen.main_menu_requested.connect(GameManager.open_main_menu)
+	game_over_screen.quit_requested.connect(GameManager.quit_game)
 	GameManager.start_session()
 
 
@@ -91,12 +96,13 @@ func _on_session_started() -> void:
 func _on_state_changed(_previous: int, current: int) -> void:
 	player.controls_enabled = current == GameManager.State.PLAYING \
 			or current == GameManager.State.WAVE_TRANSITION
-	pause_overlay.visible = current == GameManager.State.PAUSED
 	if current == GameManager.State.PAUSED:
-		pause_overlay.focus_default()
+		pause_overlay.show_menu()
+	else:
+		pause_overlay.hide_menu()
 	if current == GameManager.State.GAME_OVER:
 		wave_announcer.hide_now()
-		game_over_screen.show_results(ScoreManager.score)
+		game_over_screen.show_results(ScoreManager.get_summary())
 	else:
 		game_over_screen.hide_results()
 

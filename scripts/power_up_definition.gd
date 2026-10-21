@@ -7,6 +7,8 @@ enum Kind { RAPID_FIRE, DOUBLE_SHOT, TRIPLE_SHOT, PIERCING_LASER, SHIELD, REPAIR
 
 @export var kind: Kind = Kind.RAPID_FIRE
 @export var display_name: String = "Rapid Fire"
+## One line for the How to Play screen.
+@export var description: String = ""
 ## One or two characters drawn on the pickup.
 @export var icon_text: String = "R"
 @export var color: Color = Color(1, 0.8, 0.2, 1)

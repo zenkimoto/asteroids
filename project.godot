@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Asteroids"
-run/main_scene="res://scenes/game.tscn"
+run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -20,6 +20,8 @@ config/icon="res://icon.svg"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 GameManager="*res://scripts/game_manager.gd"
 ScoreManager="*res://scripts/score_manager.gd"
+SaveManager="*res://scripts/save_manager.gd"
+SettingsManager="*res://scripts/settings_manager.gd"
 
 [display]
 
@@ -32,6 +34,10 @@ window/stretch/mode="canvas_items"
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
+
+[gui]
+
+theme/custom="res://resources/ui/ui_theme.tres"
 
 [input]
 

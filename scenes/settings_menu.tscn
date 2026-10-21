@@ -1,0 +1,225 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/settings_panel.gd" id="1_settings"]
+
+[node name="SettingsPanel" type="Control" node_paths=PackedStringArray("default_focus")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_settings")
+default_focus = NodePath("Center/Panel/Column/Audio/MasterSlider")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0.03, 0.55)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+layout_mode = 2
+
+[node name="Column" type="VBoxContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Title" type="Label" parent="Center/Panel/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 64
+text = "SETTINGS"
+horizontal_alignment = 1
+
+[node name="AudioHeading" type="Label" parent="Center/Panel/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.3, 1)
+theme_override_font_sizes/font_size = 30
+text = "AUDIO"
+
+[node name="Audio" type="GridContainer" parent="Center/Panel/Column"]
+layout_mode = 2
+theme_override_constants/h_separation = 28
+theme_override_constants/v_separation = 14
+columns = 4
+
+[node name="MasterLabel" type="Label" parent="Center/Panel/Column/Audio"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Master volume"
+
+[node name="MasterSlider" type="HSlider" parent="Center/Panel/Column/Audio"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(440, 36)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 100.0
+step = 5.0
+
+[node name="MasterValue" type="Label" parent="Center/Panel/Column/Audio"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="MasterMute" type="Button" parent="Center/Panel/Column/Audio"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 26
+toggle_mode = true
+text = "Mute"
+
+[node name="MusicLabel" type="Label" parent="Center/Panel/Column/Audio"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Music"
+
+[node name="MusicSlider" type="HSlider" parent="Center/Panel/Column/Audio"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(440, 36)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 100.0
+step = 5.0
+
+[node name="MusicValue" type="Label" parent="Center/Panel/Column/Audio"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="MusicMute" type="Button" parent="Center/Panel/Column/Audio"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 26
+toggle_mode = true
+text = "Mute"
+
+[node name="SfxLabel" type="Label" parent="Center/Panel/Column/Audio"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Sound effects"
+
+[node name="SfxSlider" type="HSlider" parent="Center/Panel/Column/Audio"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(440, 36)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 100.0
+step = 5.0
+
+[node name="SfxValue" type="Label" parent="Center/Panel/Column/Audio"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="SfxMute" type="Button" parent="Center/Panel/Column/Audio"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 26
+toggle_mode = true
+text = "Mute"
+
+[node name="GameplayHeading" type="Label" parent="Center/Panel/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.3, 1)
+theme_override_font_sizes/font_size = 30
+text = "DISPLAY AND GAMEPLAY"
+
+[node name="Options" type="GridContainer" parent="Center/Panel/Column"]
+layout_mode = 2
+theme_override_constants/h_separation = 28
+theme_override_constants/v_separation = 14
+columns = 2
+
+[node name="FullscreenLabel" type="Label" parent="Center/Panel/Column/Options"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="FullscreenToggle" type="Button" parent="Center/Panel/Column/Options"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 26
+toggle_mode = true
+text = "OFF"
+
+[node name="ShakeLabel" type="Label" parent="Center/Panel/Column/Options"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Screen shake"
+
+[node name="ShakeToggle" type="Button" parent="Center/Panel/Column/Options"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 26
+toggle_mode = true
+text = "OFF"
+
+[node name="ParticlesLabel" type="Label" parent="Center/Panel/Column/Options"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Particle intensity"
+
+[node name="ParticlesOption" type="OptionButton" parent="Center/Panel/Column/Options"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 56)
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="FpsLabel" type="Label" parent="Center/Panel/Column/Options"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Show FPS"
+
+[node name="FpsToggle" type="Button" parent="Center/Panel/Column/Options"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 26
+toggle_mode = true
+text = "OFF"
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Panel/Column"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="ResetButton" type="Button" parent="Center/Panel/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 68)
+layout_mode = 2
+text = "Reset Defaults"
+
+[node name="BackButton" type="Button" parent="Center/Panel/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 68)
+layout_mode = 2
+text = "Back"

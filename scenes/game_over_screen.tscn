@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/game_over_screen.gd" id="1_game_over"]
+[ext_resource type="PackedScene" path="res://scenes/name_entry_dialog.tscn" id="2_name_entry"]
+[ext_resource type="PackedScene" path="res://scenes/leaderboard.tscn" id="3_leaderboard"]
 
 [node name="GameOverScreen" type="CanvasLayer"]
 layer = 20
@@ -12,48 +14,151 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0.03, 0.6)
+color = Color(0, 0, 0.03, 0.65)
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Content" type="CenterContainer" parent="."]
+unique_name_in_owner = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Column" type="VBoxContainer" parent="Center"]
+[node name="Column" type="VBoxContainer" parent="Content"]
 layout_mode = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 22
 
-[node name="Title" type="Label" parent="Center/Column"]
+[node name="Title" type="Label" parent="Content/Column"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.55, 0.85, 1)
 theme_override_font_sizes/font_size = 96
 text = "GAME OVER"
 horizontal_alignment = 1
 
-[node name="FinalScoreLabel" type="Label" parent="Center/Column"]
+[node name="ResultLabel" type="Label" parent="Content/Column"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 44
-text = "FINAL SCORE  0"
+theme_override_font_sizes/font_size = 40
+text = "NEW HIGH SCORE!"
 horizontal_alignment = 1
 
-[node name="RestartButton" type="Button" parent="Center/Column"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(320, 72)
+[node name="StatsPanel" type="PanelContainer" parent="Content/Column"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 36
-text = "Restart"
 
-[node name="Hint" type="Label" parent="Center/Column"]
+[node name="Stats" type="GridContainer" parent="Content/Column/StatsPanel"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.6, 0.7, 1)
-theme_override_font_sizes/font_size = 24
-text = "Press Enter or click Restart"
-horizontal_alignment = 1
+theme_override_constants/h_separation = 80
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="ScoreName" type="Label" parent="Content/Column/StatsPanel/Stats"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Final score"
+
+[node name="ScoreValue" type="Label" parent="Content/Column/StatsPanel/Stats"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 32
+text = "0"
+horizontal_alignment = 2
+
+[node name="WaveName" type="Label" parent="Content/Column/StatsPanel/Stats"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Highest wave reached"
+
+[node name="WaveValue" type="Label" parent="Content/Column/StatsPanel/Stats"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 32
+text = "0"
+horizontal_alignment = 2
+
+[node name="AsteroidsName" type="Label" parent="Content/Column/StatsPanel/Stats"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Asteroids destroyed"
+
+[node name="AsteroidsValue" type="Label" parent="Content/Column/StatsPanel/Stats"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 32
+text = "0"
+horizontal_alignment = 2
+
+[node name="UfosName" type="Label" parent="Content/Column/StatsPanel/Stats"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "UFOs destroyed"
+
+[node name="UfosValue" type="Label" parent="Content/Column/StatsPanel/Stats"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 32
+text = "0"
+horizontal_alignment = 2
+
+[node name="TimeName" type="Label" parent="Content/Column/StatsPanel/Stats"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Survival time"
+
+[node name="TimeValue" type="Label" parent="Content/Column/StatsPanel/Stats"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 32
+text = "0"
+horizontal_alignment = 2
+
+[node name="Buttons" type="HBoxContainer" parent="Content/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 20
+
+[node name="PlayAgainButton" type="Button" parent="Content/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 68)
+layout_mode = 2
+text = "Play Again"
+
+[node name="LeaderboardButton" type="Button" parent="Content/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 68)
+layout_mode = 2
+text = "Leaderboard"
+
+[node name="MainMenuButton" type="Button" parent="Content/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 68)
+layout_mode = 2
+text = "Main Menu"
+
+[node name="QuitButton" type="Button" parent="Content/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 68)
+layout_mode = 2
+text = "Quit"
+
+[node name="NameEntryDialog" parent="." instance=ExtResource("2_name_entry")]
+unique_name_in_owner = true
+visible = false
+
+[node name="LeaderboardPanel" parent="." instance=ExtResource("3_leaderboard")]
+unique_name_in_owner = true
+visible = false
 
 [node name="InputDelay" type="Timer" parent="."]
 one_shot = true

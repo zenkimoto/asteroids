@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/pause_overlay.gd" id="1_pause"]
+[ext_resource type="PackedScene" path="res://scenes/settings_menu.tscn" id="2_settings"]
+[ext_resource type="PackedScene" path="res://scenes/confirm_dialog.tscn" id="3_confirm"]
 
 [node name="PauseOverlay" type="CanvasLayer"]
 process_mode = 3
@@ -15,43 +17,71 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0.03, 0.55)
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Menu" type="CenterContainer" parent="."]
+unique_name_in_owner = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Column" type="VBoxContainer" parent="Center"]
+[node name="Column" type="VBoxContainer" parent="Menu"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 18
 
-[node name="Title" type="Label" parent="Center/Column"]
+[node name="Title" type="Label" parent="Menu/Column"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 88
 text = "PAUSED"
 horizontal_alignment = 1
 
-[node name="ResumeButton" type="Button" parent="Center/Column"]
+[node name="ResumeButton" type="Button" parent="Menu/Column"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(320, 72)
+custom_minimum_size = Vector2(360, 68)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 36
 text = "Resume"
 
-[node name="RestartButton" type="Button" parent="Center/Column"]
+[node name="RestartButton" type="Button" parent="Menu/Column"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(320, 72)
+custom_minimum_size = Vector2(360, 68)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 36
-text = "Restart"
+text = "Restart Game"
 
-[node name="Hint" type="Label" parent="Center/Column"]
+[node name="SettingsButton" type="Button" parent="Menu/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 68)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Settings"
+
+[node name="MainMenuButton" type="Button" parent="Menu/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 68)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Main Menu"
+
+[node name="QuitButton" type="Button" parent="Menu/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 68)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Quit Game"
+
+[node name="Hint" type="Label" parent="Menu/Column"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.6, 0.7, 1)
 theme_override_font_sizes/font_size = 24
 text = "Esc to resume"
 horizontal_alignment = 1
+
+[node name="SettingsPanel" parent="." instance=ExtResource("2_settings")]
+unique_name_in_owner = true
+visible = false
+
+[node name="ConfirmDialog" parent="." instance=ExtResource("3_confirm")]
+unique_name_in_owner = true
+visible = false

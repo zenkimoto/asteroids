@@ -1,6 +1,7 @@
 extends Node
 ## Autoload "GameManager": the game's state machine. Owns the current state, lives,
-## pausing and session start/restart, and loads the balance configuration.
+## pausing and session start/restart, moving between the main menu and the
+## gameplay scene, and loads the balance configuration.
 ## Gameplay scenes react to its signals and never change state directly.
 
 enum State { MAIN_MENU, STARTING, PLAYING, WAVE_TRANSITION, PAUSED, GAME_OVER }
@@ -12,6 +13,8 @@ signal lives_changed(lives: int)
 signal game_over(final_score: int)
 
 const BALANCE_PATH: String = "res://resources/game_balance/game_balance.tres"
+const MAIN_MENU_SCENE: String = "res://scenes/main_menu.tscn"
+const GAME_SCENE: String = "res://scenes/game.tscn"
 
 ## Allowed transitions; anything else is refused and reported as an error.
 const TRANSITIONS: Dictionary = {
@@ -79,6 +82,24 @@ func start_session() -> bool:
 	lives_changed.emit(lives)
 	session_started.emit()
 	return _change_state(State.WAVE_TRANSITION)
+
+
+## Loads the gameplay scene, which starts a new session when it's ready.
+func open_game() -> void:
+	get_tree().paused = false
+	get_tree().change_scene_to_file(GAME_SCENE)
+
+
+## Abandons any game in progress and loads the main menu.
+func open_main_menu() -> void:
+	end_session()
+	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
+
+
+## Saves pending settings and closes the application.
+func quit_game() -> void:
+	SettingsManager.flush_pending_save()
+	get_tree().quit()
 
 
 ## Leaves gameplay entirely (called when the gameplay scene is removed).
