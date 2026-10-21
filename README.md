@@ -1,5 +1,14 @@
 # Asteroids
 
+This project was built with Claude Opus 5.5 using the [Godot AI MCP server](https://github.com/hi-godot/godot-ai).  Project planning was done with GPT-6.
+
+Initial generated documents:
+- [PLANNING.md](./PLANNING.md) - Detailed planning document describing the project to Claude describing what will be built.
+- [TASK_LIST.md](./TASK_LIST.md) - Implementation plan broken into different phases.  After each phase, manually verified before continuing.
+- [PROMPT.md](./PROMPT.md) - Prompt used to implement each phase.
+
+# Overview
+
 A modern take on the classic arcade game, built with **Godot 4.7.2** and
 **GDScript**. Fly a vector-style ship through endless waves of asteroids and
 UFOs, collect power-ups, chain kills for a score multiplier and compete for a
